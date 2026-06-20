@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>기부 플랫폼 관리자 대시보드</title>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <style>
+        body { font-family: sans-serif; background: #f4f6f9; padding: 30px; color: #333; }
+        h2 { border-left: 5px solid #4361ee; padding-left: 10px; }
+        table { width: 100%; border-collapse: collapse; background: white; margin-top: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border-radius: 8px; overflow: hidden; }
+        th, td { padding: 12px 15px; text-align: center; border-bottom: 1px solid #eee; }
+        th { background-color: #4361ee; color: white; }
+        tr:hover { background-color: #f8f9fa; }
+        .badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
+        .badge-success { background: #e2fbe8; color: #1e7e34; }
+        .badge-danger { background: #ffe3e3; color: #dc3545; }
+    </style>
+</head>
+<body>
+
+    <h2>📊 기부 UX 실험 실시간 통계</h2>
+    <p>회원가입을 완료한 유저들을 기준으로 산정된 실시간 데이터 분석 테이블입니다.</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>성별</th>
+                <th>나이대</th>
+                <th>배정된 방식</th>
+                <th>총 진입수</th>
+                <th>기부 완료수</th>
+                <th>기부 성공률 (%)</th>
+                <th>창을 닫은 퍼센트 (이탈률 %)</th>
+                <th>만족도 평균 (별점)</th>
+                <th>가장 좋다고 뽑은 방식 (최다 득표)</th>
+            </tr>
+        </thead>
+        <tbody id="stats-table">
+            <tr>
+                <td colspan="9">데이터를 불러와 계산 중입니다...</td>
+            </tr>
+        </tbody>
+    </table>
+
+<script>
+    // ⚠️ [필수 고쳐쓰기] 본인의 파이어베이스 설정을 꼭 똑같이 붙여넣으세요!
+   const firebaseConfig = {
+  apiKey: "AIzaSyDh2Rin87cRXVxf5eTidxnrO93x0M7e4Dc",
+  authDomain: "globalcitizenship-271c4.firebaseapp.com",
+  projectId: "globalcitizenship-271c4",
+  storageBucket: "globalcitizenship-271c4.firebasestorage.app",
+  messagingSenderId: "360209413011",
+  appId: "1:360209413011:web:d4715a7bf7ec2daf056e66"
+};
+
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // 데이터 불러와 통계 내기
+    db.collection("donations").get().then((querySnapshot) => {
+        const matrix = {};
+
+        querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            // 성별_나이_방식 조합으로 키값 생성 (그룹화)
+            const groupKey = `${data.gender}_${data.age}_${data.type}`;
+
+            if (!matrix[groupKey]) {
+                matrix[groupKey] = {
+                    gender: data.gender,
+                    age: data.age,
+                    type: data.type,
+                    totalVisits: 0,
+                    donationCount: 0,
+                    totalStars: 0,
+                    starCount: 0,
+                    bestTypeVotes: {}
+                };
+            }
+
+            const current = matrix[groupKey];
+            current.totalVisits += 1;
+
+            if (data.hasDonated) {
+                current.donationCount += 1;
+            }
+
+            if (data.rating) {
+                current.totalStars += data.rating;
+                current.starCount += 1;
+            }
+
+            if (data.bestType) {
+                current.bestTypeVotes[data.bestType] = (current.bestTypeVotes[data.bestType] || 0) + 1;
+            }
+        });
+
+        // HTML 테이블 그리기
+        const tbody = document.getElementById('stats-table');
+        tbody.innerHTML = '';
+
+        if (Object.keys(matrix).length === 0) {
+            tbody.innerHTML = `<tr><td colspan="9">수집된 데이터가 아직 없습니다.</td></tr>`;
+            return;
+        }
+
+        for (const key in matrix) {
+            const item = matrix[key];
+            
+            // 퍼센트 계산
+            const successRate = ((item.donationCount / item.totalVisits) * 100).toFixed(1);
+            const bounceRate = (100 - successRate).toFixed(1);
+            
+            // 별점 평균 계산
+            const starAvg = item.starCount > 0 ? (item.totalStars / item.starCount).toFixed(1) : '응답없음';
+            
+            // 가장 표를 많이 받은 '가장 편한 방식' 구하기
+            let topPick = '응답없음';
+            let maxVotes = 0;
+            for (const bType in item.bestTypeVotes) {
+                if (item.bestTypeVotes[bType] > maxVotes) {
+                    maxVotes = item.bestTypeVotes[bType];
+                    topPick = bType;
+                }
+            }
+
+            const row = `
+                <tr>
+                    <td>${item.gender}</td>
+                    <td>${item.age}</td>
+                    <td><strong>${item.type}</strong></td>
+                    <td>${item.totalVisits}명</td>
+                    <td>${item.donationCount}명</td>
+                    <td><span class="badge badge-success">${successRate}%</span></td>
+                    <td><span class="badge badge-danger">${bounceRate}%</span></td>
+                    <td>⭐ ${starAvg}</td>
+                    <td>${topPick}</td>
+                </tr>
+            `;
+            tbody.innerHTML += row;
+        }
+    }).catch(err => {
+        console.error("데이터 로드 실패: ", err);
+        document.getElementById('stats-table').innerHTML = `<tr><td colspan="9" style="color:red;">데이터베이스 오류가 발생했습니다. 규칙 설정을 확인하세요.</td></tr>`;
+    });
+</script>
+</body>
+</html>

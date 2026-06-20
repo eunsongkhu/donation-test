@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>기부 플랫폼 UX 테스트</title>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --bg-color: #f8f9fa;
+        }
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            box-sizing: border-box;
+        }
+        .hidden { display: none !important; }
+        h2 { margin-top: 0; color: #333; }
+        p { color: #666; font-size: 14px; line-height: 1.6; }
+        
+        /* 폼 및 버튼 스타일 */
+        select, button, input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+        button:hover { background-color: #304ece; }
+        
+        /* 라디오 버튼 스타일 */
+        .gender-group {
+            display: flex;
+            justify-content: space-around;
+            margin: 15px 0;
+        }
+        .gender-group label {
+            cursor: pointer;
+            padding: 10px 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            width: 40%;
+        }
+        .gender-group input[type="radio"] { display: none; }
+        .gender-group input[type="radio"]:checked + label {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        /* 기부 커스텀 UI */
+        .donation-box {
+            background: #f1f3f9;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            font-weight: bold;
+            color: #222;
+        }
+
+        /* 별점 스타일 */
+        .stars {
+            display: flex;
+            justify-content: center;
+            direction: rtl;
+            font-size: 32px;
+            margin: 15px 0;
+        }
+        .stars input { display: none; }
+        .stars label { color: #ddd; cursor: pointer; transition: color 0.2s; }
+        .stars label:hover, .stars label:hover ~ label,
+        .stars input:checked ~ label { color: #ffd700; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="view-signup">
+        <h2>간편 회원가입</h2>
+        <p>성별과 나이만 입력하면 바로 참여하실 수 있습니다.</p>
+        <div class="gender-group">
+            <input type="radio" id="g-male" name="gender" value="남성">
+            <label for="g-male">남성</label>
+            <input type="radio" id="g-female" name="gender" value="여성">
+            <label for="g-female">여성</label>
+        </div>
+        <select id="age-select">
+            <option value="">나이대를 선택해주세요</option>
+            <option value="10대">10대</option>
+            <option value="20대">20대</option>
+            <option value="30대">30대</option>
+            <option value="40대">40대</option>
+            <option value="50대 이상">50대 이상</option>
+        </select>
+        <button onclick="handleSignup()">입력 완료</button>
+    </div>
+
+    <div id="view-donation" class="hidden">
+        <h2 id="donation-title">기부 페이지</h2>
+        <p id="donation-desc">기부 방식을 로딩 중입니다...</p>
+        <div id="donation-ui" class="donation-box"></div>
+        <button onclick="handleDonate()" style="background-color: #e63946;">기부 완료하기</button>
+    </div>
+
+    <div id="view-survey" class="hidden">
+        <h2>의견 제출 (마지막!)</h2>
+        <p>실제 결제는 일어나지 않았으니 안심하세요.<br>아래 설문에 응해주시면 큰 도움이 됩니다.</p>
+        
+        <hr style="border: 0.5px solid #eee; margin: 20px 0;">
+        
+        <p style="text-align: left; font-weight: bold; margin-bottom: 0;">1. 방금 체험하신 기부 방식은 얼마나 편리했나요?</p>
+        <div class="stars">
+            <input type="radio" id="st5" name="rating" value="5"><label for="st5">★</label>
+            <input type="radio" id="st4" name="rating" value="4"><label for="st4">★</label>
+            <input type="radio" id="st3" name="rating" value="3"><label for="st3">★</label>
+            <input type="radio" id="st2" name="rating" value="2"><label for="st2">★</label>
+            <input type="radio" id="st1" name="rating" value="1"><label for="st1">★</label>
+        </div>
+
+        <p style="text-align: left; font-weight: bold; margin: 20px 0 5px 0;">2. 모든 방식 중 가장 편리해 보이는 방식은?</p>
+        <select id="best-type-select">
+            <option value="">선택해주세요</option>
+            <option value="정기">정기 기부 (매달 정기 자동 이체)</option>
+            <option value="일회성">일회성 기부 (원할 때 한 번만 결제)</option>
+            <option value="크라우드 펀딩">크라우드 펀딩 (목표 금액 달성 시 기부)</option>
+            <option value="매칭">매칭 기부 (내가 낸 만큼 기업이 더블 기부)</option>
+            <option value="신용카드 포인트">신용카드 포인트 기부 (소멸 예정 포인트 활용)</option>
+        </select>
+
+        <button onclick="handleSurveySubmit()" style="margin-top: 20px;">설문 제출하고 마치기</button>
+    </div>
+
+    <div id="view-thanks" class="hidden">
+        <h2>참여해주셔서 감사합니다!</h2>
+        <p>제출하신 소중한 데이터는 UI/UX 분석 연구 목적으로만 활용됩니다.</p>
+    </div>
+</div>
+
+<script>
+    // ⚠️ [필수 고쳐쓰기] 여기에 본인의 파이어베이스 설정을 붙여넣으세요!
+ const firebaseConfig = {
+  apiKey: "AIzaSyDh2Rin87cRXVxf5eTidxnrO93x0M7e4Dc",
+  authDomain: "globalcitizenship-271c4.firebaseapp.com",
+  projectId: "globalcitizenship-271c4",
+  storageBucket: "globalcitizenship-271c4.firebasestorage.app",
+  messagingSenderId: "360209413011",
+  appId: "1:360209413011:web:d4715a7bf7ec2daf056e66"
+};
+    
+    // 파이어베이스 초기화
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // 변수 선언
+    const types = ['정기', '일회성', '크라우드 펀딩', '매칭', '신용카드 포인트'];
+    let assignedType = localStorage.getItem('assignedType');
+    let userDocId = localStorage.getItem('userDocId');
+    let hasDonated = localStorage.getItem('hasDonated') === 'true';
+    let hasSurveyed = localStorage.getItem('hasSurveyed') === 'true';
+
+    // 5가지 방식에 따른 UI 텍스트 정의
+    const typeContent = {
+        '정기': { title: '정기 기부', desc: '매달 정기적으로 따뜻한 마음을 나누어 주세요.', ui: '💳 매월 자동으로 10,000원 정기 후원 신청' },
+        '일회성': { title: '일회성 기부', desc: '부담 없이 한 번만 원하시는 만큼 기부하실 수 있습니다.', ui: '💰 일회성 10,000원 즉시 후원' },
+        '크라우드 펀딩': { title: '크라우드 펀딩 기부', desc: '목표 금액이 달성되면 프로젝트가 실행되고 기부금이 전달됩니다.', ui: '📈 목표 달성률 85% - 펀딩 참여하기' },
+        '매칭': { title: '매칭 기부', desc: '여러분이 1천 원을 기부하면 기업에서 똑같이 1천 원을 더해 총 2천 원이 기부됩니다.', ui: '🤝 기업 매칭 (나 5,000원 + 기업 5,000원) 참여' },
+        '신용카드 포인트': { title: '신용카드 포인트 기부', desc: '소멸 예정인 카드 포인트를 모아 가치 있게 기부할 수 있습니다.', ui: '✨ 보유 포인트 확인 및 전액 기부 (12,400P)' }
+    };
+
+    // 처음 로드 시 유저의 상태 체크 후 화면 전환
+    window.onload = function() {
+        if (!assignedType) {
+            // 한 번도 안 온 유저라면 무작위 방식 배정만 해두고 폰에 보관
+            const randomIndex = Math.floor(Math.random() * types.length);
+            assignedType = types[randomIndex];
+            localStorage.setItem('assignedType', assignedType);
+        }
+
+        if (!userDocId) {
+            showView('view-signup');
+        } else if (!hasDonated) {
+            setupDonationPage();
+            showView('view-donation');
+        } else if (!hasSurveyed) {
+            showView('view-survey');
+        } else {
+            showView('view-thanks');
+        }
+    };
+
+    function showView(viewId) {
+        document.getElementById('view-signup').classList.add('hidden');
+        document.getElementById('view-donation').classList.add('hidden');
+        document.getElementById('view-survey').classList.add('hidden');
+        document.getElementById('view-thanks').classList.add('hidden');
+        document.getElementById(viewId).classList.remove('hidden');
+    }
+
+    // 1단계: 가입 처리 (여기에 정보 저장을 하면서 이탈률 체크 기준선이 됨)
+    function handleSignup() {
+        const genderNode = document.querySelector('input[name="gender"]:checked');
+        const age = document.getElementById('age-select').value;
+
+        if (!genderNode || !age) {
+            alert('성별과 나이대를 모두 선택해주세요!');
+            return;
+        }
+
+        const gender = genderNode.value;
+
+        // DB에 가입 로그 생성 (기부하지 않고 나갈 것을 대비해 기본값 설정)
+        db.collection("donations").add({
+            gender: gender,
+            age: age,
+            type: assignedType,
+            hasDonated: false, // 기본값 거짓 (이 상태로 끄면 이탈자가 됨)
+            rating: null,
+            bestType: null,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        })
+        .then((docRef) => {
+            userDocId = docRef.id;
+            localStorage.setItem('userDocId', userDocId);
+            
+            setupDonationPage();
+            showView('view-donation');
+        })
+        .catch((error) => console.error("Error signing up: ", error));
+    }
+
+    function setupDonationPage() {
+        const content = typeContent[assignedType];
+        document.getElementById('donation-title').innerText = content.title;
+        document.getElementById('donation-desc').innerText = content.desc;
+        document.getElementById('donation-ui').innerText = content.ui;
+    }
+
+    // 2단계: 기부 완료 버튼 클릭 시
+    function handleDonate() {
+        db.collection("donations").doc(userDocId).update({
+            hasDonated: true
+        })
+        .then(() => {
+            localStorage.setItem('hasDonated', 'true');
+            showView('view-survey');
+        })
+        .catch((error) => console.error("Error donating: ", error));
+    }
+
+    // 3단계: 설문조사 제출
+    function handleSurveySubmit() {
+        const ratingNode = document.querySelector('input[name="rating"]:checked');
+        const bestType = document.getElementById('best-type-select').value;
+
+        if (!ratingNode || !bestType) {
+            alert('두 문항 모두 성실히 답해 주셔야 제출 가능합니다!');
+            return;
+        }
+
+        const rating = parseInt(ratingNode.value);
+
+        db.collection("donations").doc(userDocId).update({
+            rating: rating,
+            bestType: bestType
+        })
+        .then(() => {
+            localStorage.setItem('hasSurveyed', 'true');
+            showView('view-thanks');
+        })
+        .catch((error) => console.error("Error submitting survey: ", error));
+    }
+</script>
+
+</body>
+</html>

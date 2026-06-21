@@ -16,22 +16,16 @@
             --text-main: #2b2d42;
             --text-sub: #6c757d;
             --border-color: #e9ecef;
+            --green-color: #059669; /* 표에서 사용할 포인트 녹색 */
         }
         * { box-sizing: border-box; font-family: 'Noto Sans KR', sans-serif; }
-        body { background-color: #f4f6f9; margin: 0; padding: 0; min-height: 100vh; color: var(--text-main); }
+        body { background-color: #f4f6f9; margin: 0; padding: 0; min-height: 100vh; color: var(--text-main); overflow-x: hidden; }
         
         .hidden { display: none !important; }
 
-        /* 상단 헤더 & 가로 네비게이션 */
         header {
-            background: white;
-            height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 40px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            position: fixed; width: 100%; top: 0; z-index: 900;
+            background: white; height: 60px; display: flex; align-items: center; justify-content: space-between;
+            padding: 0 40px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); position: fixed; width: 100%; top: 0; z-index: 900;
         }
         .logo { font-size: 22px; font-weight: 800; color: var(--primary-color); letter-spacing: -0.5px; }
         
@@ -39,77 +33,87 @@
         .top-menu li { cursor: pointer; font-size: 15px; font-weight: 500; color: var(--text-main); transition: color 0.2s; }
         .top-menu li:hover { color: var(--primary-color); font-weight: 700; }
 
-        /* 메인 2분할 레이아웃 컨테이너 */
+        /* 메인 컨테이너 - 세로로만 늘어나도록 수정 */
         .main-wrapper {
             max-width: 1100px; width: 90%; margin: 100px auto 40px auto;
             background: white; border-radius: 24px; overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.06); display: flex; min-height: 580px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.06); display: flex; align-items: stretch;
         }
         
-        /* 좌측 이미지 영역 */
         .left-banner {
             flex: 1.1; background: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.4)), url('https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=1000&auto=format&fit=crop');
             background-size: cover; background-position: center;
             display: flex; flex-direction: column; justify-content: flex-end; padding: 40px; color: white;
         }
-        .left-banner .banner-tag { background: rgba(255,255,255,0.25); backdrop-filter: blur(4px); padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; width: fit-content; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .left-banner .banner-tag { background: rgba(255,255,255,0.25); backdrop-filter: blur(4px); padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; width: fit-content; margin-bottom: 12px; text-transform: uppercase; }
         .left-banner h1 { font-size: 32px; margin-bottom: 10px; font-weight: 700; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
         .left-banner p { font-size: 16px; margin: 0; line-height: 1.5; color: #f8f9fa; text-shadow: 0 1px 3px rgba(0,0,0,0.5); }
 
-        /* 우측 콘텐츠 및 기부 UI 영역 */
-        .right-content { flex: 0.9; padding: 40px; display: flex; flex-direction: column; justify-content: center; position: relative; }
+        .right-content { flex: 0.9; padding: 40px; display: flex; flex-direction: column; justify-content: center; position: relative; max-width: 100%; }
         .right-content h2 { font-size: 24px; margin-top: 0; margin-bottom: 12px; }
         .right-content .desc { color: var(--text-sub); font-size: 15px; line-height: 1.6; margin-bottom: 25px; }
 
-        /* 기부 컴포넌트 공통 구조 */
-        .donation-ui-box { background: var(--primary-light); padding: 22px; border-radius: 16px; margin-bottom: 25px; text-align: left; min-height: 110px; }
+        .donation-ui-box { background: var(--primary-light); padding: 22px; border-radius: 16px; margin-bottom: 25px; text-align: left; min-height: 110px; width: 100%; }
         
-        /* 펀딩 UI */
         .funding-info { display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 8px; font-size: 14px; }
         .progress-bar { background: #dee2e6; height: 8px; border-radius: 4px; overflow: hidden; margin-bottom: 10px; }
         .progress-fill { background: #e63946; height: 100%; width: 85%; }
 
-        /* 금액 선택 칩 UI (정기/일시/매칭 공통) */
         .amount-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 12px; }
         .amount-chip { background: white; border: 1px solid var(--border-color); padding: 10px; text-align: center; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 500; transition: 0.2s; }
         .amount-chip.active { border-color: var(--primary-color); background: var(--primary-color); color: white; }
         .custom-amount-input { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 14px; outline: none; }
 
-        /* 카드 포인트 UI */
         .card-link-box { text-align: center; padding: 5px 0; }
         .btn-link { background: white; border: 1px solid var(--primary-color); color: var(--primary-color); display: inline-flex; align-items: center; gap: 5px; width: auto; justify-content: center; padding: 10px 20px; }
 
-        /* 액션 버튼 */
         .btn-submit { background-color: #e63946; color: white; border: none; font-size: 16px; font-weight: 700; padding: 15px; border-radius: 12px; cursor: pointer; width: 100%; transition: background 0.2s; margin: 0; }
         .btn-submit:hover { background-color: #cb2d3a; }
 
-        /* 📋 기부금 투명성 토글 스타일 추가 */
-        .usage-toggle-wrapper { margin-top: 15px; border-top: 1px dashed var(--border-color); padding-top: 10px; }
+        /* 📋 기부금 투명성 토글 버튼 */
+        .usage-toggle-wrapper { margin-top: 15px; border-top: 1px dashed var(--border-color); padding-top: 10px; width: 100%; }
         .btn-usage-toggle { background: none; border: none; width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 8px 4px; font-size: 13px; font-weight: 500; color: var(--text-sub); cursor: pointer; border-radius: 6px; }
         .btn-usage-toggle:hover { background: var(--primary-light); color: var(--primary-color); }
-        .usage-content-box { background: #fafafa; border: 1px solid var(--border-color); border-radius: 10px; padding: 12px; margin-top: 8px; font-size: 12px; line-height: 1.5; text-align: left; }
-        .usage-list { margin: 8px 0 0 0; padding: 0; list-style: none; }
-        .usage-item { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #f1f1f1; color: var(--text-main); }
-        .usage-item:last-child { border-bottom: none; }
 
-        /* 설문조사 UI */
+        /* 📊 참조하신 디자인을 반영한 전문적인 표 형식의 내역 UI */
+        .usage-content-box { width: 100%; padding: 15px 0 0 0; }
+        .usage-content-box h3 { font-size: 18px; margin: 0 0 15px 0; color: #222; }
+        
+        /* 사업 개요 메타 정보 */
+        .campaign-meta { display: grid; grid-template-columns: max-content auto max-content auto; gap: 10px 20px; font-size: 13px; margin-bottom: 20px; color: #333; align-items: center; }
+        .meta-label { color: #777; }
+
+        /* 예산 내역 테이블 */
+        .budget-table { border: 1px solid var(--border-color); font-size: 14px; margin-bottom: 15px; background: white; }
+        .budget-header { display: flex; padding: 15px; border-bottom: 1px solid var(--border-color); background: #fafafa; }
+        .budget-header .col-title { width: 90px; color: #333; font-weight: 500; }
+        .budget-header .col-value { color: var(--green-color); font-weight: bold; }
+        
+        .budget-row { display: flex; padding: 15px; border-bottom: 1px solid var(--border-color); }
+        .budget-row .category { width: 90px; color: #555; }
+        .budget-row .details { flex: 1; display: flex; flex-direction: column; }
+        .budget-row .amount { font-weight: bold; color: #222; margin-bottom: 4px; }
+        .budget-row .desc { color: #888; font-size: 12px; }
+        
+        .more-btn-row { text-align: center; padding: 12px; color: #777; font-size: 13px; cursor: pointer; background: white; transition: 0.2s; }
+        .more-btn-row:hover { background: #f9f9f9; }
+
+        /* 하단 보증 문구 */
+        .assurance-box { font-size: 14px; color: #333; padding-bottom: 10px; }
+        .assurance-title { display: flex; align-items: center; gap: 6px; font-weight: bold; margin-bottom: 8px; }
+        .assurance-title .material-symbols-outlined { color: var(--green-color); font-size: 20px; }
+
         .stars { display: flex; justify-content: center; direction: rtl; font-size: 36px; margin: 15px 0; }
         .stars input { display: none; }
         .stars label { color: #ddd; cursor: pointer; transition: color 0.2s; }
         .stars label:hover, .stars label:hover ~ label, .stars input:checked ~ label { color: #ffd700; }
         select { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); font-size: 15px; margin: 10px 0 20px 0; }
 
-        /* 팝업(모달) 스타일 */
+        /* 팝업 모달 */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); display: flex; justify-content: center; align-items: center; z-index: 1000; }
         .modal-content { background: white; padding: 30px 25px 25px 25px; border-radius: 20px; width: 90%; max-width: 380px; text-align: center; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.2); position: relative; }
-        
-        .modal-close { 
-            position: absolute; top: 15px; right: 15px; cursor: pointer; 
-            color: #999; background: none; border: none; 
-            font-size: 16px; font-weight: bold; padding: 5px; 
-        }
+        .modal-close { position: absolute; top: 15px; right: 15px; cursor: pointer; color: #999; background: none; border: none; font-size: 16px; font-weight: bold; padding: 5px; }
         .modal-close:hover { color: #555; }
-
         .modal-content h3 { margin-top: 5px; font-size: 19px; color: #d62828; line-height: 1.4; }
         
         .gender-group { display: flex; justify-content: space-around; margin: 15px 0; }
@@ -120,11 +124,9 @@
         .consent-box { display: flex; align-items: flex-start; text-align: left; margin: 15px 0; background: #f8f9fa; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); }
         .consent-box input[type="checkbox"] { width: auto; margin: 3px 8px 0 0; cursor: pointer; }
         .consent-box label { font-size: 12px; color: #555; line-height: 1.4; cursor: pointer; }
-        
         .modal-content select { margin: 5px 0 15px 0; }
         .modal-content button.btn-submit-modal { margin: 5px 0; padding: 12px; font-weight: bold; font-size: 16px; border-radius: 8px; border: none; background: var(--primary-color); color: white; cursor: pointer; width: 100%; }
 
-        /* 모바일 반응형 */
         @media (max-width: 768px) {
             header { padding: 0 15px; justify-content: center; flex-direction: column; height: auto; padding-bottom: 10px; position: static; }
             .logo { margin: 15px 0 10px 0; }
@@ -132,8 +134,11 @@
             .top-menu li { font-size: 13px; }
             .main-wrapper { flex-direction: column; min-height: auto; margin-top: 20px; }
             .left-banner { min-height: 200px; padding: 20px; }
-            .left-banner h1 { font-size: 24px; }
             .right-content { padding: 25px; }
+            /* 모바일 표 최적화 */
+            .campaign-meta { grid-template-columns: max-content auto; gap: 8px 15px; }
+            .budget-header, .budget-row { flex-direction: column; gap: 5px; }
+            .budget-row .category, .budget-header .col-title { font-size: 12px; color: var(--primary-color); }
         }
     </style>
 </head>
@@ -167,19 +172,59 @@
 
                 <button onclick="openSignupModal()" class="btn-submit">후원 완료하기</button>
 
+                <!-- 📋 기부금 투명성 영역 (이미지 디자인 반영) -->
                 <div class="usage-toggle-wrapper">
                     <button onclick="toggleUsageHistory()" class="btn-usage-toggle">
                         <span>💡 내가 낸 기부금은 어떻게 사용되나요?</span>
                         <span id="toggle-icon" class="material-symbols-outlined" style="font-size:18px;">expand_more</span>
                     </button>
+                    
                     <div id="usage-content" class="usage-content-box hidden">
-                        <span style="font-weight:bold; color:var(--primary-color);">위기브 투명성 보고</span>
-                        <p style="margin:4px 0 8px 0; color:var(--text-sub);">보내주신 후원금은 외부 회계 법인의 투명한 감사를 거쳐 전액 결식아동 지원 사업에 투입됩니다.</p>
-                        <div class="usage-list">
-                            <div class="usage-item"><span>▪ 아동 급식 전문 식단 및 식재료 지원</span><strong>55%</strong></div>
-                            <div class="usage-item"><span>▪ 결식 우려 아동 주거환경 개선 펀드</span><strong>25%</strong></div>
-                            <div class="usage-item"><span>▪ 심리 정서 상담 및 맞춤형 교육</span><strong>15%</strong></div>
-                            <div class="usage-item"><span>▪ 캠페인 운영 및 투명 집행 행정비</span><strong>5%</strong></div>
+                        <h3>이렇게 진행됩니다</h3>
+                        
+                        <div class="campaign-meta">
+                            <div class="meta-label">모금기간</div><div>2026.06.20 ~ 2026.08.20</div>
+                            <div class="meta-label">사업기간</div><div>2026.06.20 ~ 2026.10.31</div>
+                            <div class="meta-label">대상</div><div>결식우려아동</div>
+                            <div class="meta-label">대상 수</div><div>100명</div>
+                            <div class="meta-label">기부금 공제</div><div style="grid-column: 2 / -1;">일반기부금</div>
+                        </div>
+
+                        <div class="budget-table">
+                            <div class="budget-header">
+                                <div class="col-title">목표금액</div>
+                                <div class="col-value">총 5,000,000원</div>
+                            </div>
+                            <div class="budget-row">
+                                <div class="category">사업비</div>
+                                <div class="details">
+                                    <span class="amount">2,750,000원</span>
+                                    <span class="desc">ㄴ 아동 급식 전문 식단 및 식재료 지원</span>
+                                </div>
+                            </div>
+                            <div class="budget-row">
+                                <div class="category">사업비</div>
+                                <div class="details">
+                                    <span class="amount">1,250,000원</span>
+                                    <span class="desc">ㄴ 결식 우려 아동 주거환경 개선 펀드</span>
+                                </div>
+                            </div>
+                            <div class="budget-row">
+                                <div class="category">사업비</div>
+                                <div class="details">
+                                    <span class="amount">750,000원</span>
+                                    <span class="desc">ㄴ 심리 정서 상담 및 맞춤형 교육</span>
+                                </div>
+                            </div>
+                            <div class="more-btn-row">더보기 ></div>
+                        </div>
+
+                        <div class="assurance-box">
+                            <div class="assurance-title">
+                                <span class="material-symbols-outlined">check_circle</span>
+                                목표금액 미달 시
+                            </div>
+                            <div style="font-size: 13px; color: #555;">단체에서 금액을 보태어 사업을 진행하겠습니다.</div>
                         </div>
                     </div>
                 </div>
@@ -269,7 +314,7 @@
     let assignedType = localStorage.getItem('assignedType');
     let visitDocId = localStorage.getItem('visitDocId');
     let hasSurveyed = localStorage.getItem('hasSurveyed') === 'true';
-    let hasCheckedUsage = false; // 내역 확인 중복 기록 방지 플래그
+    let hasCheckedUsage = false; 
     let db = null;
 
     try {
@@ -306,7 +351,7 @@
         setupDonationPage();
         visitDocId = null;
         localStorage.removeItem('visitDocId');
-        hasCheckedUsage = false; // 방식 변경 시 플래그 리셋
+        hasCheckedUsage = false; 
         if (db) createVisitLog();
     }
 
@@ -319,7 +364,7 @@
                 hasDonated: false,
                 rating: null,
                 bestType: null,
-                checkedUsageHistory: false, // 기본값 false로 설정
+                checkedUsageHistory: false,
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             })
             .then((docRef) => {
@@ -329,7 +374,6 @@
         }
     }
 
-    // 📋 투명성 토글 펼치기/접기 및 파이어베이스 전송 함수
     function toggleUsageHistory() {
         const content = document.getElementById('usage-content');
         const icon = document.getElementById('toggle-icon');
@@ -338,7 +382,6 @@
             content.classList.remove('hidden');
             icon.innerText = 'expand_less';
 
-            // 유저가 처음 클릭해 열었을 때만 파이어베이스에 true 기록
             if (!hasCheckedUsage) {
                 hasCheckedUsage = true;
                 if (db && visitDocId) {
@@ -362,7 +405,6 @@
         if(!container) return;
         container.innerHTML = ''; 
         
-        // 접힌 채로 초기화
         document.getElementById('usage-content').classList.add('hidden');
         document.getElementById('toggle-icon').innerText = 'expand_more';
 

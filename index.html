@@ -27,13 +27,17 @@
             background: white; height: 60px; display: flex; align-items: center; justify-content: space-between;
             padding: 0 40px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); position: fixed; width: 100%; top: 0; z-index: 900;
         }
+        
+        .logo-wrapper { display: flex; align-items: center; justify-content: space-between; }
         .logo { font-size: 22px; font-weight: 800; color: var(--primary-color); letter-spacing: -0.5px; }
         
+        /* 햄버거 버튼 (PC에서는 숨김) */
+        .hamburger-btn { display: none; cursor: pointer; font-size: 28px; color: var(--text-main); }
+
         .top-menu { list-style: none; padding: 0; margin: 0; display: flex; gap: 24px; align-items: center; }
         .top-menu li { cursor: pointer; font-size: 15px; font-weight: 500; color: var(--text-main); transition: color 0.2s; }
         .top-menu li:hover { color: var(--primary-color); font-weight: 700; }
         
-        /* 🐛 버그 제보 버튼 */
         .bug-report-btn { display: flex; align-items: center; justify-content: center; color: #999 !important; }
         .bug-report-btn:hover { color: #d62828 !important; }
 
@@ -130,12 +134,51 @@
 
         textarea { font-family: inherit; }
 
+        /* 📱 모바일 반응형 처리 */
         @media (max-width: 768px) {
-            header { padding: 0 15px; justify-content: center; flex-direction: column; height: auto; padding-bottom: 10px; position: static; }
-            .logo { margin: 15px 0 10px 0; }
-            .top-menu { flex-wrap: wrap; justify-content: center; gap: 10px; }
-            .top-menu li { font-size: 13px; }
-            .main-wrapper { flex-direction: column; min-height: auto; margin-top: 20px; gap: 20px; }
+            header { 
+                flex-direction: column; 
+                padding: 0; 
+                height: auto; 
+                position: fixed; /* 상단 고정 유지 */
+                align-items: flex-start; 
+            }
+            .logo-wrapper { 
+                width: 100%; 
+                padding: 15px 20px; 
+                box-sizing: border-box; 
+                background: white; /* 배경색 지정으로 뒤에 내용 비침 방지 */
+                z-index: 901;
+            }
+            .logo { margin: 0; }
+            .hamburger-btn { display: block; } /* 모바일에서 햄버거 버튼 보이기 */
+
+            /* 드롭다운 메뉴 스타일 */
+            .top-menu { 
+                display: none; /* 기본으로 숨김 */
+                flex-direction: column; 
+                width: 100%; 
+                background: white; 
+                position: absolute; 
+                top: 100%; 
+                left: 0; 
+                box-shadow: 0 10px 15px rgba(0,0,0,0.05); 
+                padding: 0; 
+                gap: 0; 
+                z-index: 900;
+            }
+            .top-menu.show { display: flex; } /* show 클래스 추가 시 보이기 */
+            .top-menu li { 
+                padding: 15px 20px; 
+                width: 100%; 
+                border-top: 1px solid #f1f3f9; 
+                text-align: left; 
+                box-sizing: border-box; 
+                font-size: 15px; 
+            }
+            .bug-report-btn { justify-content: flex-start; gap: 8px; }
+
+            .main-wrapper { flex-direction: column; min-height: auto; margin-top: 80px; gap: 20px; } /* header 높이 변화로 margin 조정 */
             
             .left-banner { min-height: 350px; padding: 25px; height: auto; width: 100%; }
             .left-banner .banner-tag { font-size: 10px; padding: 3px 10px; margin-bottom: 8px; }
@@ -152,17 +195,20 @@
 <body>
 
     <header>
-        <div class="logo">WeGive</div>
-        <ul class="top-menu">
+        <div class="logo-wrapper">
+            <div class="logo">WeGive</div>
+            <span class="material-symbols-outlined hamburger-btn" onclick="toggleMobileMenu()">menu</span>
+        </div>
+        
+        <ul class="top-menu" id="mobile-menu">
             <li onclick="changeTypeDirect('정기')">정기 후원</li>
             <li onclick="changeTypeDirect('일회성')">일회성 후원</li>
             <li onclick="changeTypeDirect('크라우드 펀딩')">크라우드 펀딩</li>
             <li onclick="changeTypeDirect('매칭')">기업 매칭 후원</li>
             <li onclick="changeTypeDirect('신용카드 포인트')">카드 포인트 기부</li>
-            <!-- 🐛 버그 제보 아이콘 추가 -->
             <li class="bug-report-btn" onclick="openBugModal()" title="버그 및 개선 제보">
                 <span class="material-symbols-outlined" style="font-size: 20px;">bug_report</span>
-            </li>
+                <span class="bug-text" style="display: none;">버그 제보</span> </li>
         </ul>
     </header>
 
@@ -277,7 +323,6 @@
         </div>
     </div>
 
-    <!-- 기존 설문 모달 -->
     <div id="signup-modal" class="modal-overlay hidden">
         <div class="modal-content">
             <button class="modal-close" onclick="closeSignupModal()">✕</button>
@@ -311,7 +356,6 @@
         </div>
     </div>
 
-    <!-- 🐛 버그 제보 모달 추가 -->
     <div id="bug-modal" class="modal-overlay hidden">
         <div class="modal-content">
             <button class="modal-close" onclick="closeBugModal()">✕</button>
@@ -370,8 +414,19 @@
             localStorage.setItem('assignedType', assignedType);
         }
         setupDonationPage();
+        
+        // 모바일 환경에서 버그 제보 아이콘 옆에 텍스트 보이게 설정 (CSS로 하면 레이아웃 깨짐 방지)
+        if (window.innerWidth <= 768) {
+            document.querySelector('.bug-text').style.display = 'inline';
+        }
+
         if (db) createVisitLog();
     };
+
+    // 📱 모바일 메뉴 토글 (열기/닫기)
+    function toggleMobileMenu() {
+        document.getElementById('mobile-menu').classList.toggle('show');
+    }
 
     function changeTypeDirect(targetType) {
         assignedType = targetType;
@@ -381,6 +436,9 @@
         localStorage.removeItem('visitDocId');
         hasCheckedUsage = false; 
         if (db) createVisitLog();
+
+        // 📱 메뉴를 누르면 모바일 드롭다운 메뉴 닫기
+        document.getElementById('mobile-menu').classList.remove('show');
     }
 
     function createVisitLog() {
@@ -537,14 +595,16 @@
     function openSignupModal() { document.getElementById('signup-modal').classList.remove('hidden'); }
     function closeSignupModal() { document.getElementById('signup-modal').classList.add('hidden'); }
 
-    // 🐛 버그 모달 열고 닫기 로직
-    function openBugModal() { document.getElementById('bug-modal').classList.remove('hidden'); }
+    function openBugModal() { 
+        document.getElementById('bug-modal').classList.remove('hidden'); 
+        document.getElementById('mobile-menu').classList.remove('show'); // 📱 모바일 드롭다운 메뉴 닫기
+    }
+    
     function closeBugModal() { 
         document.getElementById('bug-modal').classList.add('hidden'); 
         document.getElementById('bug-report-text').value = ''; 
     }
 
-    // 🐛 버그 데이터 제출 로직
     function submitBugReport() {
         const text = document.getElementById('bug-report-text').value.trim();
         if (!text) { 

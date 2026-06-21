@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WeGive</title>
+    <title>WeGive(위기브) - 우리가 함께 만드는 따뜻한 변화</title>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
@@ -22,31 +22,22 @@
         
         .hidden { display: none !important; }
 
-        /* 상단 네비게이션 & 사이드바 */
-       /* 상단 헤더 & 가로 네비게이션 */
-header {
-    background: white;
-    height: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between; /* 양쪽 끝으로 배치 */
-    padding: 0 40px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-    position: fixed; width: 100%; top: 0; z-index: 900;
-}
-.logo { font-size: 20px; font-weight: 700; color: var(--primary-color); }
-
-/* 상단 가로 메뉴바 스타일 */
-.top-menu { list-style: none; padding: 0; margin: 0; display: flex; gap: 20px; }
-.top-menu li { cursor: pointer; font-size: 14px; font-weight: 500; color: var(--text-main); transition: color 0.2s; }
-.top-menu li:hover { color: var(--primary-color); font-weight: 700; }
-
-@media (max-width: 768px) {
-    header { padding: 0 15px; justify-content: center; flex-direction: column; height: auto; padding-bottom: 10px; }
-    .logo { margin: 10px 0; }
-    .top-menu { flex-wrap: wrap; justify-content: center; gap: 10px; }
-    .top-menu li { font-size: 12px; }
-}
+        /* 상단 헤더 & 가로 네비게이션 */
+        header {
+            background: white;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            position: fixed; width: 100%; top: 0; z-index: 900;
+        }
+        .logo { font-size: 22px; font-weight: 800; color: var(--primary-color); letter-spacing: -0.5px; }
+        
+        .top-menu { list-style: none; padding: 0; margin: 0; display: flex; gap: 24px; }
+        .top-menu li { cursor: pointer; font-size: 15px; font-weight: 500; color: var(--text-main); transition: color 0.2s; }
+        .top-menu li:hover { color: var(--primary-color); font-weight: 700; }
 
         /* 메인 2분할 레이아웃 컨테이너 */
         .main-wrapper {
@@ -61,6 +52,7 @@ header {
             background-size: cover; background-position: center;
             display: flex; flex-direction: column; justify-content: flex-end; padding: 40px; color: white;
         }
+        .left-banner .banner-tag { background: rgba(255,255,255,0.25); backdrop-filter: blur(4px); padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; width: fit-content; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
         .left-banner h1 { font-size: 32px; margin-bottom: 10px; font-weight: 700; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
         .left-banner p { font-size: 16px; margin: 0; line-height: 1.5; color: #f8f9fa; text-shadow: 0 1px 3px rgba(0,0,0,0.5); }
 
@@ -78,7 +70,7 @@ header {
         .progress-fill { background: #e63946; height: 100%; width: 85%; }
 
         /* 금액 선택 칩 UI (정기/일시/매칭 공통) */
-        .amount-grid { display: grid; grid-template-columns: repeat(3, 13fr); gap: 10px; margin-bottom: 12px; }
+        .amount-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 12px; }
         .amount-chip { background: white; border: 1px solid var(--border-color); padding: 10px; text-align: center; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 500; transition: 0.2s; }
         .amount-chip.active { border-color: var(--primary-color); background: var(--primary-color); color: white; }
         .custom-amount-input { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 14px; outline: none; }
@@ -101,22 +93,15 @@ header {
         /* 팝업(모달) 스타일 */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); display: flex; justify-content: center; align-items: center; z-index: 1000; }
         .modal-content { background: white; padding: 30px 25px 25px 25px; border-radius: 20px; width: 90%; max-width: 380px; text-align: center; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.2); position: relative; }
-        /* 팝업(모달) 우측 상단 X 버튼 작고 옅은 회색으로 변경 */
-.modal-close { 
-    position: absolute; 
-    top: 15px; 
-    right: 15px; 
-    cursor: pointer; 
-    color: #999; /* 옅은 회색 */
-    background: none; 
-    border: none; 
-    font-size: 16px; /* 크기 축소 */
-    font-weight: bold;
-    padding: 5px; 
-}
-.modal-close:hover {
-    color: #555;
-}
+        
+        /* 팝업 우측 상단 X 버튼 */
+        .modal-close { 
+            position: absolute; top: 15px; right: 15px; cursor: pointer; 
+            color: #999; background: none; border: none; 
+            font-size: 16px; font-weight: bold; padding: 5px; 
+        }
+        .modal-close:hover { color: #555; }
+
         .modal-content h3 { margin-top: 5px; font-size: 19px; color: #d62828; line-height: 1.4; }
         
         .gender-group { display: flex; justify-content: space-around; margin: 15px 0; }
@@ -129,10 +114,15 @@ header {
         .consent-box label { font-size: 12px; color: #555; line-height: 1.4; cursor: pointer; }
         
         .modal-content select { margin: 5px 0 15px 0; }
-        .modal-content button { margin: 5px 0; padding: 12px; font-weight: bold; font-size: 16px; border-radius: 8px; border: none; background: var(--primary-color); color: white; cursor: pointer; width: 100%; }
+        .modal-content button.btn-submit-modal { margin: 5px 0; padding: 12px; font-weight: bold; font-size: 16px; border-radius: 8px; border: none; background: var(--primary-color); color: white; cursor: pointer; width: 100%; }
 
+        /* 모바일 반응형 */
         @media (max-width: 768px) {
-            .main-wrapper { flex-direction: column; min-height: auto; margin-top: 80px; }
+            header { padding: 0 15px; justify-content: center; flex-direction: column; height: auto; padding-bottom: 10px; position: static; }
+            .logo { margin: 15px 0 10px 0; }
+            .top-menu { flex-wrap: wrap; justify-content: center; gap: 10px; }
+            .top-menu li { font-size: 13px; }
+            .main-wrapper { flex-direction: column; min-height: auto; margin-top: 20px; }
             .left-banner { min-height: 200px; padding: 20px; }
             .left-banner h1 { font-size: 24px; }
             .right-content { padding: 25px; }
@@ -141,35 +131,20 @@ header {
 </head>
 <body>
 
-<!-- 상단 헤더 가로 네비게이션 -->
-<header>
-    <div class="logo">WeGive</div>
-    <ul class="top-menu">
-        <li onclick="changeTypeDirect('정기')">정기 후원</li>
-        <li onclick="changeTypeDirect('일회성')">일회성 후원</li>
-        <li onclick="changeTypeDirect('크라우드 펀딩')">크라우드 펀딩</li>
-        <li onclick="changeTypeDirect('매칭')">기업 매칭 후원</li>
-        <li onclick="changeTypeDirect('신용카드 포인트')">카드 포인트 기부</li>
-    </ul>
-</header>
-
-    <div id="sidebar-overlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
-    <div id="sidebar" class="sidebar">
-        <div class="sidebar-header">
-            <h3>다른 기부방식 체험 (실험용)</h3>
-            <button class="menu-btn" onclick="toggleSidebar()"><span class="material-symbols-outlined">close</span></button>
-        </div>
-        <ul class="sidebar-menu">
-            <li onclick="changeTypeDirect('정기')"><span class="material-symbols-outlined">calendar_month</span> 정기 후원</li>
-            <li onclick="changeTypeDirect('일회성')"><span class="material-symbols-outlined">volunteer_activism</span> 일회성 후원</li>
-            <li onclick="changeTypeDirect('크라우드 펀딩')"><span class="material-symbols-outlined">trending_up</span> 크라우드 펀딩</li>
-            <li onclick="changeTypeDirect('매칭')"><span class="material-symbols-outlined">handshake</span> 기업 매칭 후원</li>
-            <li onclick="changeTypeDirect('신용카드 포인트')"><span class="material-symbols-outlined">credit_card</span> 잔여 카드 포인트</li>
+    <header>
+        <div class="logo">WeGive</div>
+        <ul class="top-menu">
+            <li onclick="changeTypeDirect('정기')">정기 후원</li>
+            <li onclick="changeTypeDirect('일회성')">일회성 후원</li>
+            <li onclick="changeTypeDirect('크라우드 펀딩')">크라우드 펀딩</li>
+            <li onclick="changeTypeDirect('매칭')">기업 매칭 후원</li>
+            <li onclick="changeTypeDirect('신용카드 포인트')">카드 포인트 기부</li>
         </ul>
-    </div>
+    </header>
 
     <div class="main-wrapper">
         <div class="left-banner">
+            <div class="banner-tag">WeGive Campaign</div>
             <h1>다시 꿈꿀 수 있도록</h1>
             <p>오늘 한 번의 따뜻한 손길이 결식 아동들의 든든한 한 끼 식사와 더 나은 내일을 만들어 줍니다.</p>
         </div>
@@ -225,7 +200,7 @@ header {
 
     <div id="signup-modal" class="modal-overlay hidden">
         <div class="modal-content">
-<button class="modal-close" onclick="closeSignupModal()">✕</button>
+            <button class="modal-close" onclick="closeSignupModal()">✕</button>
             
             <h3>회원가입하셔야<br>기부가 가능합니다.</h3>
             
@@ -250,7 +225,7 @@ header {
                 <label for="privacy-agree">실제 회원가입이 아니며 성별, 연령 외의 정보는 수집하지 않습니다. 수집된 정보는 연구 목적으로만 활용됩니다.</label>
             </div>
 
-            <button onclick="processDonation()">입력 완료 및 기부하기</button>
+            <button class="btn-submit-modal" onclick="processDonation()">입력 완료 및 기부하기</button>
             
             <a href="https://google.com" style="display: block; margin-top: 15px; font-size: 12px; color: #999; text-decoration: none; text-align: center;">기부하지 않고 나가기</a>
         </div>
@@ -259,7 +234,7 @@ header {
 <script>
     // ⚠️ [필수 고쳐쓰기] 본인의 파이어베이스 설정을 붙여넣으세요!
     const firebaseConfig = {
-  apiKey: "AIzaSyDh2Rin87cRXVxf5eTidxnrO93x0M7e4Dc",
+       apiKey: "AIzaSyDh2Rin87cRXVxf5eTidxnrO93x0M7e4Dc",
   authDomain: "globalcitizenship-271c4.firebaseapp.com",
   projectId: "globalcitizenship-271c4",
   storageBucket: "globalcitizenship-271c4.firebasestorage.app",
@@ -276,7 +251,7 @@ header {
     let visitDocId = localStorage.getItem('visitDocId');
     let hasSurveyed = localStorage.getItem('hasSurveyed') === 'true';
 
-    // 5가지 방식별 상단 타이틀 및 설명 문구 문맥 정의
+    // 💡 데이터 로드 시 위기브 문맥에 어울리도록 텍스트 보정
     const typeContent = {
         '정기': { title: '정기 후원하기', desc: '매달 정기적으로 아이들의 성장을 든든하게 지원해 줄 수 있습니다.' },
         '일회성': { title: '일시 후원하기', desc: '원할 때 원하는 만큼 부담 없이 한 번만 따뜻한 마음을 전합니다.' },
@@ -286,7 +261,7 @@ header {
     };
 
     window.onload = function() {
-        // 🔥 [개발 시 확인용 모드] 무조건 리셋해서 바로 보려면 아래 4줄 주석(//) 해제!
+        // 🔥 개발 모드 시 테스트하려면 아래 4줄 주석(//) 해제!
         // localStorage.clear();
         // assignedType = types[Math.floor(Math.random() * types.length)];
         // visitDocId = null;
@@ -305,25 +280,15 @@ header {
         createVisitLog();
     };
 
-    // 사이드바 토글 기능
-    function toggleSidebar() {
-        document.getElementById('sidebar').classList.toggle('open');
-        document.getElementById('sidebar-overlay').classList.toggle('show');
-    }
-
-    // 실험용 사이드바에서 수동 변경 시 작동
     function changeTypeDirect(targetType) {
         assignedType = targetType;
         localStorage.setItem('assignedType', targetType);
         setupDonationPage();
-        toggleSidebar();
-        // 새 방식 진입 시 로그 새로 생성
         visitDocId = null;
         localStorage.removeItem('visitDocId');
         createVisitLog();
     }
 
-    // 파이어베이스 최초 방문 문서 생성함수
     function createVisitLog() {
         if (!visitDocId) {
             db.collection("donations").add({
@@ -342,14 +307,13 @@ header {
         }
     }
 
-    // 우측 콘텐츠 박스에 5가지 맞춤 UI 빌드
     function setupDonationPage() {
         const textInfo = typeContent[assignedType];
         document.getElementById('donation-title').innerText = textInfo.title;
         document.getElementById('donation-desc').innerText = textInfo.desc;
 
         const container = document.getElementById('donation-ui-container');
-        container.innerHTML = ''; // 초기화
+        container.innerHTML = ''; 
 
         if (assignedType === '정기' || assignedType === '일회성') {
             container.innerHTML = `
@@ -373,7 +337,7 @@ header {
         } 
         else if (assignedType === '매칭') {
             container.innerHTML = `
-                <div style="font-size:13px; font-weight:bold; color:var(--primary-color); margin-bottom:10px;">🤝 OO네트웍스 X 기브스토리 더블 매칭 캠페인</div>
+                <div style="font-size:13px; font-weight:bold; color:var(--primary-color); margin-bottom:10px;">🤝 OO네트웍스 X WeGive 더블 매칭 캠페인</div>
                 <div class="amount-grid">
                     <div class="amount-chip active" onclick="selectChip(this)">10,000 원 후원<br><span style="font-size:10px;color:#999;">+기업만원 추가</span></div>
                     <div class="amount-chip" onclick="selectChip(this)">20,000 원 후원<br><span style="font-size:10px;color:#999;">+기업이만원 추가</span></div>
@@ -393,7 +357,6 @@ header {
         }
     }
 
-    // 금액 칩 클릭 이벤트
     function selectChip(element) {
         const chips = element.parentElement.getElementsByClassName('amount-chip');
         for(let chip of chips) { chip.classList.remove('active'); }

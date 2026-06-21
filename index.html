@@ -751,42 +751,73 @@
     }
 
     /* 🤖 각 항목별 정해진 규칙 형태의 모의 '자동 완성' 지원 장치 기믹 */
-    function autoFillField(fieldType) {
-        if(fieldType === 'gender') {
-            document.getElementById('pay-gender').value = '남성';
-        } else if(fieldType === 'age') {
-            document.getElementById('pay-age').value = '20대';
-        } else if(fieldType === 'agree') {
-            document.getElementById('pay-agree').checked = true;
-        } else if(fieldType === 'cms-bank') {
-            document.getElementById('cms-bank').value = '카카오뱅크';
-        } else if(fieldType === 'cms-account') {
-            document.getElementById('cms-account').value = Math.floor(100000000000 + Math.random() * 900000000000);
-        } else if(fieldType === 'cms-name') {
-            document.getElementById('cms-name').value = '홍길동';
-        } else if(fieldType === 'cms-birth' || fieldType === 'card-birth') {
-            const birthId = document.getElementById('cms-birth') ? 'cms-birth' : 'card-birth';
-            const el = document.getElementById(birthId);
-            if(el) el.value = '950815';
-            else {
-                if(document.getElementById('cms-birth')) document.getElementById('cms-birth').value = '950815';
-                if(document.getElementById('card-birth')) document.getElementById('card-birth').value = '950815';
-            }
-        } else if(fieldType === 'card-company') {
-            document.getElementById('card-company').value = 'KB국민';
-        } else if(fieldType === 'card-num') {
-            document.getElementById('card-num-1').value = '9410';
-            document.getElementById('card-num-2').value = '4211';
-            document.getElementById('card-num-3').value = String(Math.floor(1000 + Math.random() * 9000));
-            document.getElementById('card-num-4').value = String(Math.floor(1000 + Math.random() * 9000));
-        } else if(fieldType === 'card-expiry') {
-            document.getElementById('card-month').value = '11';
-            document.getElementById('card-year').value = '30';
-        } else if(fieldType === 'card-owner') {
-            document.getElementById('card-owner').value = '홍길동';
-        }
-    }
+   // 🤖 유효 범위 내 난수(Random) 기반 자동 완성 함수
+function autoFillField(fieldType) {
+    // 랜덤 이름 생성용 풀
+    const lastNames = ['김', '이', '박', '최', '정', '강', '조', '윤', '장', '임'];
+    const firstNames = ['민준', '서연', '도윤', '서현', '하준', '수아', '은우', '지아', '현우', '지민'];
+    const getRandomName = () => lastNames[Math.floor(Math.random() * lastNames.length)] + firstNames[Math.floor(Math.random() * firstNames.length)];
 
+    // 랜덤 생년월일(6자리) 생성기 (70년대생~00년대생)
+    const getRandomBirth = () => {
+        const yy = String(Math.floor(Math.random() * (99 - 70 + 1)) + 70); // 70~99년생
+        const mm = String(Math.floor(Math.random() * 12) + 1).padStart(2, '0');
+        const dd = String(Math.floor(Math.random() * 28) + 1).padStart(2, '0'); // 안전하게 28일까지
+        return yy + mm + dd;
+    };
+
+    if (fieldType === 'gender') {
+        const genders = ['남성', '여성'];
+        document.getElementById('pay-gender').value = genders[Math.floor(Math.random() * genders.length)];
+    } 
+    else if (fieldType === 'age') {
+        const ages = ['10대', '20대', '30대', '40대', '50대 이상'];
+        document.getElementById('pay-age').value = ages[Math.floor(Math.random() * ages.length)];
+    } 
+    else if (fieldType === 'agree') {
+        document.getElementById('pay-agree').checked = true;
+    } 
+    else if (fieldType === 'cms-bank') {
+        const banks = ['신한은행', '국민은행', '우리은행', '하나은행', '카카오뱅크'];
+        document.getElementById('cms-bank').value = banks[Math.floor(Math.random() * banks.length)];
+    } 
+    else if (fieldType === 'cms-account') {
+        // 11자리~13자리의 랜덤 계좌번호 난수 생성
+        let account = '';
+        const len = Math.floor(Math.random() * 3) + 11; 
+        for(let i=0; i<len; i++) account += Math.floor(Math.random() * 10);
+        document.getElementById('cms-account').value = account;
+    } 
+    else if (fieldType === 'cms-name') {
+        document.getElementById('cms-name').value = getRandomName();
+    } 
+    else if (fieldType === 'cms-birth') {
+        // 확실하게 자동이체용 생년월일 지목
+        document.getElementById('cms-birth').value = getRandomBirth();
+    } 
+    else if (fieldType === 'card-company') {
+        const cards = ['KB국민', '신한카드', '삼성카드', '현대카드', 'NH채움', '비씨'];
+        document.getElementById('card-company').value = cards[Math.floor(Math.random() * cards.length)];
+    } 
+    else if (fieldType === 'card-num') {
+        // 카드 규격에 맞는 4자리 난수 4개 조합
+        document.getElementById('card-num-1').value = String(Math.floor(1000 + Math.random() * 9000));
+        document.getElementById('card-num-2').value = String(Math.floor(1000 + Math.random() * 9000));
+        document.getElementById('card-num-3').value = String(Math.floor(1000 + Math.random() * 9000));
+        document.getElementById('card-num-4').value = String(Math.floor(1000 + Math.random() * 9000));
+    } 
+    else if (fieldType === 'card-expiry') {
+        document.getElementById('card-month').value = String(Math.floor(Math.random() * 12) + 1).padStart(2, '0');
+        document.getElementById('card-year').value = String(Math.floor(Math.random() * (32 - 26 + 1)) + 26); // 26년~32년 유효기간
+    } 
+    else if (fieldType === 'card-owner') {
+        document.getElementById('card-owner').value = getRandomName();
+    } 
+    else if (fieldType === 'card-birth') {
+        // 확실하게 신용카드용 생년월일 지목
+        document.getElementById('card-birth').value = getRandomBirth();
+    }
+}
     /* ⏳ 카카오페이 / 토스페이 3초 모바일 간편결제 연동 지연 컴포넌트 */
     function triggerEasyPaySimulate(appName) {
         const gender = document.getElementById('pay-gender').value;
@@ -806,7 +837,7 @@
             overlay.classList.add('hidden');
             alert(`✅ ${appName} 모의 인증 및 간편 결제가 안전하게 처리 완료되었습니다.`);
             saveDataAndGoToSurvey(gender, age);
-        }, 3000);
+        }, 2000);
     }
 
     /* 일반 폼 최종 결제 처리단 */

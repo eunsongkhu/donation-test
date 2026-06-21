@@ -83,6 +83,15 @@
         .btn-submit { background-color: #e63946; color: white; border: none; font-size: 16px; font-weight: 700; padding: 15px; border-radius: 12px; cursor: pointer; width: 100%; transition: background 0.2s; margin: 0; }
         .btn-submit:hover { background-color: #cb2d3a; }
 
+        /* 📋 기부금 투명성 토글 스타일 추가 */
+        .usage-toggle-wrapper { margin-top: 15px; border-top: 1px dashed var(--border-color); padding-top: 10px; }
+        .btn-usage-toggle { background: none; border: none; width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 8px 4px; font-size: 13px; font-weight: 500; color: var(--text-sub); cursor: pointer; border-radius: 6px; }
+        .btn-usage-toggle:hover { background: var(--primary-light); color: var(--primary-color); }
+        .usage-content-box { background: #fafafa; border: 1px solid var(--border-color); border-radius: 10px; padding: 12px; margin-top: 8px; font-size: 12px; line-height: 1.5; text-align: left; }
+        .usage-list { margin: 8px 0 0 0; padding: 0; list-style: none; }
+        .usage-item { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #f1f1f1; color: var(--text-main); }
+        .usage-item:last-child { border-bottom: none; }
+
         /* 설문조사 UI */
         .stars { display: flex; justify-content: center; direction: rtl; font-size: 36px; margin: 15px 0; }
         .stars input { display: none; }
@@ -94,7 +103,6 @@
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); display: flex; justify-content: center; align-items: center; z-index: 1000; }
         .modal-content { background: white; padding: 30px 25px 25px 25px; border-radius: 20px; width: 90%; max-width: 380px; text-align: center; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.2); position: relative; }
         
-        /* 팝업 우측 상단 X 버튼 */
         .modal-close { 
             position: absolute; top: 15px; right: 15px; cursor: pointer; 
             color: #999; background: none; border: none; 
@@ -155,10 +163,26 @@
                 <h2 id="donation-title">기부 페이지</h2>
                 <div id="donation-desc" class="desc">방식을 로딩 중입니다...</div>
                 
-                <div id="donation-ui-container" class="donation-ui-box">
-                    </div>
+                <div id="donation-ui-container" class="donation-ui-box"></div>
 
                 <button onclick="openSignupModal()" class="btn-submit">후원 완료하기</button>
+
+                <div class="usage-toggle-wrapper">
+                    <button onclick="toggleUsageHistory()" class="btn-usage-toggle">
+                        <span>💡 내가 낸 기부금은 어떻게 사용되나요?</span>
+                        <span id="toggle-icon" class="material-symbols-outlined" style="font-size:18px;">expand_more</span>
+                    </button>
+                    <div id="usage-content" class="usage-content-box hidden">
+                        <span style="font-weight:bold; color:var(--primary-color);">위기브 투명성 보고</span>
+                        <p style="margin:4px 0 8px 0; color:var(--text-sub);">보내주신 후원금은 외부 회계 법인의 투명한 감사를 거쳐 전액 결식아동 지원 사업에 투입됩니다.</p>
+                        <div class="usage-list">
+                            <div class="usage-item"><span>▪ 아동 급식 전문 식단 및 식재료 지원</span><strong>55%</strong></div>
+                            <div class="usage-item"><span>▪ 결식 우려 아동 주거환경 개선 펀드</span><strong>25%</strong></div>
+                            <div class="usage-item"><span>▪ 심리 정서 상담 및 맞춤형 교육</span><strong>15%</strong></div>
+                            <div class="usage-item"><span>▪ 캠페인 운영 및 투명 집행 행정비</span><strong>5%</strong></div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div id="view-survey" class="hidden">
@@ -232,7 +256,6 @@
     </div>
 
 <script>
-    // 파이어베이스 설정값 안전 보관
     const firebaseConfig = {
         apiKey: "AIzaSyDh2Rin87cRXVxf5eTidxnrO93x0M7e4Dc",
         authDomain: "globalcitizenship-271c4.firebaseapp.com",
@@ -242,19 +265,18 @@
         appId: "1:360209413011:web:d4715a7bf7ec2daf056e66"
     };    
 
-    // 초기 변수 설정
     const types = ['정기', '일회성', '크라우드 펀딩', '매칭', '신용카드 포인트'];
     let assignedType = localStorage.getItem('assignedType');
     let visitDocId = localStorage.getItem('visitDocId');
     let hasSurveyed = localStorage.getItem('hasSurveyed') === 'true';
+    let hasCheckedUsage = false; // 내역 확인 중복 기록 방지 플래그
     let db = null;
 
-    // 파이어베이스 초기화 예외처리 적용
     try {
         firebase.initializeApp(firebaseConfig);
         db = firebase.firestore();
     } catch (e) {
-        console.error("Firebase 초기화 에러, 하지만 화면은 정상 출력됩니다:", e);
+        console.error("Firebase 에러:", e);
     }
 
     const typeContent = {
@@ -265,25 +287,17 @@
         '신용카드 포인트': { title: '보유 카드 포인트 기부', desc: '숨겨져 있던 카드사 잔여 포인트를 연동하여 가치 있게 기부해 보세요.' }
     };
 
-    // 💡 순서 보장: 화면 진입 시 무조건 버튼 레이아웃부터 완성 후 백엔드 로그 생성
     window.onload = function() {
         if (hasSurveyed) {
             showView('view-thanks');
             return;
         }
-
         if (!assignedType) {
             assignedType = types[Math.floor(Math.random() * types.length)];
             localStorage.setItem('assignedType', assignedType);
         }
-        
-        // 1. 화면 UI 먼저 구성 (가장 중요)
         setupDonationPage();
-        
-        // 2. 파이어베이스 연동 로그 생성
-        if (db) {
-            createVisitLog();
-        }
+        if (db) createVisitLog();
     };
 
     function changeTypeDirect(targetType) {
@@ -292,9 +306,8 @@
         setupDonationPage();
         visitDocId = null;
         localStorage.removeItem('visitDocId');
-        if (db) {
-            createVisitLog();
-        }
+        hasCheckedUsage = false; // 방식 변경 시 플래그 리셋
+        if (db) createVisitLog();
     }
 
     function createVisitLog() {
@@ -306,13 +319,37 @@
                 hasDonated: false,
                 rating: null,
                 bestType: null,
+                checkedUsageHistory: false, // 기본값 false로 설정
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             })
             .then((docRef) => {
                 visitDocId = docRef.id;
                 localStorage.setItem('visitDocId', visitDocId);
-            })
-            .catch(err => console.error("방문 로그 생성 실패:", err));
+            });
+        }
+    }
+
+    // 📋 투명성 토글 펼치기/접기 및 파이어베이스 전송 함수
+    function toggleUsageHistory() {
+        const content = document.getElementById('usage-content');
+        const icon = document.getElementById('toggle-icon');
+
+        if (content.classList.contains('hidden')) {
+            content.classList.remove('hidden');
+            icon.innerText = 'expand_less';
+
+            // 유저가 처음 클릭해 열었을 때만 파이어베이스에 true 기록
+            if (!hasCheckedUsage) {
+                hasCheckedUsage = true;
+                if (db && visitDocId) {
+                    db.collection("donations").doc(visitDocId).update({
+                        checkedUsageHistory: true
+                    }).catch(e => console.error("기록 실패:", e));
+                }
+            }
+        } else {
+            content.classList.add('hidden');
+            icon.innerText = 'expand_more';
         }
     }
 
@@ -324,6 +361,10 @@
         const container = document.getElementById('donation-ui-container');
         if(!container) return;
         container.innerHTML = ''; 
+        
+        // 접힌 채로 초기화
+        document.getElementById('usage-content').classList.add('hidden');
+        document.getElementById('toggle-icon').innerText = 'expand_more';
 
         if (assignedType === '정기' || assignedType === '일회성') {
             container.innerHTML = `
@@ -403,7 +444,6 @@
             })
             .catch((error) => console.error("업데이트 에러: ", error));
         } else {
-            // DB 연결이 지연되거나 실패하더라도 연구 실험 진행을 위해 화면 전환 보장
             closeSignupModal();
             showView('view-survey');
         }

@@ -508,7 +508,7 @@
         storageBucket: "globalcitizenship-271c4.firebasestorage.app",
         messagingSenderId: "360209413011",
         appId: "1:360209413011:web:d4715a7bf7ec2daf056e66"
-    };    
+    };  
 
     const types = ['정기', '일회성', '크라우드 펀딩', '매칭', '신용카드 포인트'];
     let assignedType = localStorage.getItem('assignedType');
@@ -620,7 +620,7 @@
             content.classList.remove('hidden');
             icon.innerText = 'expand_less';
 
-            // 정적 내용 채우기 보조
+            // 정적 내용 채우기
             content.innerHTML = `
                 <h3>이렇게 진행됩니다</h3>
                 <div class="campaign-meta">
@@ -686,87 +686,91 @@
                     <div class="amount-chip" onclick="selectChip(this)">50,000 원 후원<br><span>+기업 50,000원 추가</span></div>
                 </div>
             `;
-        } // setupDonationPage() 함수 내부의 해당 블록을 교체하세요
-else if (assignedType === '신용카드 포인트') {
-    container.innerHTML = `
-        <div class="card-link-box" id="point-link-wrapper" style="text-align: center; padding: 15px 0;">
-            <p style="margin-top:0; font-size:14px; color:var(--text-sub); margin-bottom:15px;">기부 가능한 잔여 카드 포인트를 안전하게 조회합니다.</p>
-            <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
-                <button onclick="connectCardPoints('normal')" class="btn-link" style="border-color: var(--primary-color); color: var(--text-main); background: #fff; font-weight: bold; padding: 10px 16px;">
-                    <span class="material-symbols-outlined" style="font-size:20px;">credit_card</span>
-                    내 카드 포인트 조회 및 연동
-                </button>
-                <button onclick="connectCardPoints('appcard')" class="btn-link" style="border-color: var(--primary-color); color: #fff; background: var(--primary-color); font-weight: bold; padding: 10px 16px;">
-                    <span class="material-symbols-outlined" style="font-size:20px;">phonelink_setup</span>
-                    앱카드로 연동하기
-                </button>
-            </div>
-            <div id="point-loading-status" style="margin-top: 15px; display: none; color: var(--primary-color); font-weight: bold; font-size: 14px;">
-                <span class="spinner" style="display:inline-block; animation: spin 1s linear infinite; margin-right:5px;">⏳</span> 
-                안전하게 카드 포인트를 조회 중입니다. 잠시만 기다려주세요...
-            </div>
-        </div>
-    `;
+        } else if (assignedType === '신용카드 포인트') {
+            container.innerHTML = `
+                <div class="card-link-box" id="point-link-wrapper" style="text-align: center; padding: 15px 0;">
+                    <p style="margin-top:0; font-size:14px; color:var(--text-sub); margin-bottom:15px;">기부 가능한 잔여 카드 포인트를 안전하게 조회합니다.</p>
+                    <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                        <button onclick="connectCardPoints('normal')" class="btn-link" style="border-color: var(--primary-color); color: var(--text-main); background: #fff; font-weight: bold; padding: 10px 16px;">
+                            <span class="material-symbols-outlined" style="font-size:20px;">credit_card</span>
+                            내 카드 포인트 조회 및 연동
+                        </button>
+                        <button onclick="connectCardPoints('appcard')" class="btn-link" style="border-color: var(--primary-color); color: #fff; background: var(--primary-color); font-weight: bold; padding: 10px 16px;">
+                            <span class="material-symbols-outlined" style="font-size:20px;">phonelink_setup</span>
+                            앱카드로 연동하기
+                        </button>
+                    </div>
+                    <div id="point-loading-status" style="margin-top: 15px; display: none; color: var(--primary-color); font-weight: bold; font-size: 14px;">
+                        <span class="spinner" style="display:inline-block; animation: spin 1s linear infinite; margin-right:5px;">⏳</span> 
+                        안전하게 카드 포인트를 조회 중입니다. 잠시만 기다려주세요...
+                    </div>
+                </div>
+            `;
 
-    // ⏳ 로딩 스피너 애니메이션이 CSS에 없다면 추가하기 위해 체크
-    if (!document.getElementById('spinner-style')) {
-        const style = document.createElement('style');
-        style.id = 'spinner-style';
-        style.innerHTML = `@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`;
-        document.head.appendChild(style);
-    }
-}
+            // ⏳ 로딩 스피너 애니메이션 추가
+            if (!document.getElementById('spinner-style')) {
+                const style = document.createElement('style');
+                style.id = 'spinner-style';
+                style.innerHTML = `@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`;
+                document.head.appendChild(style);
+            }
+        }
     }
 
     function selectChip(element) {
         const chips = element.parentElement.getElementsByClassName('amount-chip');
         for(let chip of chips) { chip.classList.remove('active'); }
-        element.add ? element.add('active') : element.classList.add('active');
+        element.classList.add('active'); // 버그 수정된 부분
     }
 
     // 💳 카드 포인트 연동 (2초 딜레이 기능 포함)
-function connectCardPoints(type) {
-    const wrapper = document.getElementById('point-link-wrapper');
-    const loadingStatus = document.getElementById('point-loading-status');
-    if (!wrapper || !loadingStatus) return;
+    function connectCardPoints(type) {
+        const wrapper = document.getElementById('point-link-wrapper');
+        const loadingStatus = document.getElementById('point-loading-status');
+        if (!wrapper || !loadingStatus) return;
 
-    // 버튼 영역 잠시 숨기고 로딩바 표시
-    const buttons = wrapper.querySelector('div');
-    if (buttons) buttons.style.display = 'none';
-    loadingStatus.style.display = 'block';
+        // 버튼 영역 잠시 숨기고 로딩바 표시
+        const buttons = wrapper.querySelector('div');
+        if (buttons) buttons.style.display = 'none';
+        loadingStatus.style.display = 'block';
 
-    // 정확히 2초(2000ms) 후에 포인트 결과 출력
-    setTimeout(() => {
-        // 2,000P ~ 45,000P 사이의 1,000원 단위 랜덤 포인트 생성
-        const randomPoint = Math.floor(Math.random() * (45 - 2 + 1) + 2) * 1000;
-        const methodTitle = type === 'appcard' ? '앱카드 연동' : '카드 포인트 조회';
+        // 정확히 2초(2000ms) 후에 포인트 결과 출력
+        setTimeout(() => {
+            // 2,000P ~ 45,000P 사이의 1,000원 단위 랜덤 포인트 생성
+            const randomPoint = Math.floor(Math.random() * (45 - 2 + 1) + 2) * 1000;
+            const methodTitle = type === 'appcard' ? '앱카드 연동' : '카드 포인트 조회';
 
-        wrapper.innerHTML = `
-            <p style="margin-top:0; font-size:13px; color: var(--green-color); font-weight:bold; display:flex; align-items:center; justify-content:center; gap:4px;">
-                <span class="material-symbols-outlined" style="font-size:18px;">check_circle</span>
-                ${methodTitle}가 완료되었습니다. (가능 포인트: ${randomPoint.toLocaleString()} P)
-            </p>
-            <input type="number" id="custom-point-input" class="custom-amount-input" value="${randomPoint}" placeholder="후원할 포인트를 입력하세요 (P)">
-        `;
-    }, 2000);
-}
-
-    // 🎯 [핵심 수정] 카드 포인트 기부일 경우 결제창 없이 바로 설문으로 이동
-    if (assignedType === '신용카드 포인트') {
-        const pointInput = document.getElementById('custom-point-input');
-        if (!pointInput || !pointInput.value || pointInput.value <= 0) {
-            alert('포인트 연동을 먼저 완료해 주세요.');
-            return;
-        }
-        
-        // 데이터 저장 및 설문조사 페이지로 즉시 전환
-        localStorage.setItem('donationAmount', pointInput.value);
-        showView('view-survey'); // 팝업/결제단계 건너뛰고 바로 설문 뷰로 이동
-        return; 
+            wrapper.innerHTML = `
+                <p style="margin-top:0; font-size:13px; color: var(--green-color); font-weight:bold; display:flex; align-items:center; justify-content:center; gap:4px;">
+                    <span class="material-symbols-outlined" style="font-size:18px;">check_circle</span>
+                    ${methodTitle}가 완료되었습니다. (가능 포인트: ${randomPoint.toLocaleString()} P)
+                </p>
+                <input type="number" id="custom-point-input" class="custom-amount-input" value="${randomPoint}" placeholder="후원할 포인트를 입력하세요 (P)">
+            `;
+        }, 2000);
     }
+
+    // 🎯 카드 포인트 기부일 경우 결제창 없이 바로 설문으로 이동 로직
+    // 주의: 전역 스크립트 공간에 있던 기존 if문은 실행되지 않으므로 goToPaymentPage 내부에 통합하거나 이벤트에 연결해야 정상 작동합니다.
+    // 기존 기능 유지를 위해 결제 버튼 클릭 시 체크하도록 goToPaymentPage 함수 상단에 로직을 이동했습니다.
 
     /* ➡️ 2단계 진입: 메인 배너와 정보입력창 전체를 결제 정보 페이지로 완벽 대체 교체 */
     function goToPaymentPage() {
+        // [핵심 수정] 카드 포인트 기부 시 설문으로 즉시 이동
+        if (assignedType === '신용카드 포인트') {
+            const pointInput = document.getElementById('custom-point-input');
+            if (!pointInput || !pointInput.value || pointInput.value <= 0) {
+                alert('포인트 연동을 먼저 완료해 주세요.');
+                return;
+            }
+            
+            // 데이터 저장 및 설문조사 페이지로 즉시 전환
+            localStorage.setItem('donationAmount', pointInput.value);
+            showView('view-survey'); 
+            reloadToSurveyView(); // 설문조사 뷰 강제 렌더링
+            return; 
+        }
+
         const wrapper = document.getElementById('main-content-wrapper');
         const templateHTML = document.getElementById('payment-page-template').innerHTML;
         
@@ -817,73 +821,69 @@ function connectCardPoints(type) {
     }
 
     /* 🤖 각 항목별 정해진 규칙 형태의 모의 '자동 완성' 지원 장치 기믹 */
-   // 🤖 유효 범위 내 난수(Random) 기반 자동 완성 함수
-function autoFillField(fieldType) {
-    // 랜덤 이름 생성용 풀
-    const lastNames = ['김', '이', '박', '최', '정', '강', '조', '윤', '장', '임'];
-    const firstNames = ['민준', '서연', '도윤', '서현', '하준', '수아', '은우', '지아', '현우', '지민'];
-    const getRandomName = () => lastNames[Math.floor(Math.random() * lastNames.length)] + firstNames[Math.floor(Math.random() * firstNames.length)];
+    function autoFillField(fieldType) {
+        // 랜덤 이름 생성용 풀
+        const lastNames = ['김', '이', '박', '최', '정', '강', '조', '윤', '장', '임'];
+        const firstNames = ['민준', '서연', '도윤', '서현', '하준', '수아', '은우', '지아', '현우', '지민'];
+        const getRandomName = () => lastNames[Math.floor(Math.random() * lastNames.length)] + firstNames[Math.floor(Math.random() * firstNames.length)];
 
-    // 랜덤 생년월일(6자리) 생성기 (70년대생~00년대생)
-    const getRandomBirth = () => {
-        const yy = String(Math.floor(Math.random() * (99 - 70 + 1)) + 70); // 70~99년생
-        const mm = String(Math.floor(Math.random() * 12) + 1).padStart(2, '0');
-        const dd = String(Math.floor(Math.random() * 28) + 1).padStart(2, '0'); // 안전하게 28일까지
-        return yy + mm + dd;
-    };
+        // 랜덤 생년월일(6자리) 생성기 (70년대생~00년대생)
+        const getRandomBirth = () => {
+            const yy = String(Math.floor(Math.random() * (99 - 70 + 1)) + 70); 
+            const mm = String(Math.floor(Math.random() * 12) + 1).padStart(2, '0');
+            const dd = String(Math.floor(Math.random() * 28) + 1).padStart(2, '0'); 
+            return yy + mm + dd;
+        };
 
-    if (fieldType === 'gender') {
-        const genders = ['남성', '여성'];
-        document.getElementById('pay-gender').value = genders[Math.floor(Math.random() * genders.length)];
-    } 
-    else if (fieldType === 'age') {
-        const ages = ['10대', '20대', '30대', '40대', '50대 이상'];
-        document.getElementById('pay-age').value = ages[Math.floor(Math.random() * ages.length)];
-    } 
-    else if (fieldType === 'agree') {
-        document.getElementById('pay-agree').checked = true;
-    } 
-    else if (fieldType === 'cms-bank') {
-        const banks = ['신한은행', '국민은행', '우리은행', '하나은행', '카카오뱅크'];
-        document.getElementById('cms-bank').value = banks[Math.floor(Math.random() * banks.length)];
-    } 
-    else if (fieldType === 'cms-account') {
-        // 11자리~13자리의 랜덤 계좌번호 난수 생성
-        let account = '';
-        const len = Math.floor(Math.random() * 3) + 11; 
-        for(let i=0; i<len; i++) account += Math.floor(Math.random() * 10);
-        document.getElementById('cms-account').value = account;
-    } 
-    else if (fieldType === 'cms-name') {
-        document.getElementById('cms-name').value = getRandomName();
-    } 
-    else if (fieldType === 'cms-birth') {
-        // 확실하게 자동이체용 생년월일 지목
-        document.getElementById('cms-birth').value = getRandomBirth();
-    } 
-    else if (fieldType === 'card-company') {
-        const cards = ['KB국민', '신한카드', '삼성카드', '현대카드', 'NH채움', '비씨'];
-        document.getElementById('card-company').value = cards[Math.floor(Math.random() * cards.length)];
-    } 
-    else if (fieldType === 'card-num') {
-        // 카드 규격에 맞는 4자리 난수 4개 조합
-        document.getElementById('card-num-1').value = String(Math.floor(1000 + Math.random() * 9000));
-        document.getElementById('card-num-2').value = String(Math.floor(1000 + Math.random() * 9000));
-        document.getElementById('card-num-3').value = String(Math.floor(1000 + Math.random() * 9000));
-        document.getElementById('card-num-4').value = String(Math.floor(1000 + Math.random() * 9000));
-    } 
-    else if (fieldType === 'card-expiry') {
-        document.getElementById('card-month').value = String(Math.floor(Math.random() * 12) + 1).padStart(2, '0');
-        document.getElementById('card-year').value = String(Math.floor(Math.random() * (32 - 26 + 1)) + 26); // 26년~32년 유효기간
-    } 
-    else if (fieldType === 'card-owner') {
-        document.getElementById('card-owner').value = getRandomName();
-    } 
-    else if (fieldType === 'card-birth') {
-        // 확실하게 신용카드용 생년월일 지목
-        document.getElementById('card-birth').value = getRandomBirth();
+        if (fieldType === 'gender') {
+            const genders = ['남성', '여성'];
+            document.getElementById('pay-gender').value = genders[Math.floor(Math.random() * genders.length)];
+        } 
+        else if (fieldType === 'age') {
+            const ages = ['10대', '20대', '30대', '40대', '50대 이상'];
+            document.getElementById('pay-age').value = ages[Math.floor(Math.random() * ages.length)];
+        } 
+        else if (fieldType === 'agree') {
+            document.getElementById('pay-agree').checked = true;
+        } 
+        else if (fieldType === 'cms-bank') {
+            const banks = ['신한은행', '국민은행', '우리은행', '하나은행', '카카오뱅크'];
+            document.getElementById('cms-bank').value = banks[Math.floor(Math.random() * banks.length)];
+        } 
+        else if (fieldType === 'cms-account') {
+            let account = '';
+            const len = Math.floor(Math.random() * 3) + 11; 
+            for(let i=0; i<len; i++) account += Math.floor(Math.random() * 10);
+            document.getElementById('cms-account').value = account;
+        } 
+        else if (fieldType === 'cms-name') {
+            document.getElementById('cms-name').value = getRandomName();
+        } 
+        else if (fieldType === 'cms-birth') {
+            document.getElementById('cms-birth').value = getRandomBirth();
+        } 
+        else if (fieldType === 'card-company') {
+            const cards = ['KB국민', '신한카드', '삼성카드', '현대카드', 'NH채움', '비씨'];
+            document.getElementById('card-company').value = cards[Math.floor(Math.random() * cards.length)];
+        } 
+        else if (fieldType === 'card-num') {
+            document.getElementById('card-num-1').value = String(Math.floor(1000 + Math.random() * 9000));
+            document.getElementById('card-num-2').value = String(Math.floor(1000 + Math.random() * 9000));
+            document.getElementById('card-num-3').value = String(Math.floor(1000 + Math.random() * 9000));
+            document.getElementById('card-num-4').value = String(Math.floor(1000 + Math.random() * 9000));
+        } 
+        else if (fieldType === 'card-expiry') {
+            document.getElementById('card-month').value = String(Math.floor(Math.random() * 12) + 1).padStart(2, '0');
+            document.getElementById('card-year').value = String(Math.floor(Math.random() * (32 - 26 + 1)) + 26); 
+        } 
+        else if (fieldType === 'card-owner') {
+            document.getElementById('card-owner').value = getRandomName();
+        } 
+        else if (fieldType === 'card-birth') {
+            document.getElementById('card-birth').value = getRandomBirth();
+        }
     }
-}
+
     /* ⏳ 카카오페이 / 토스페이 3초 모바일 간편결제 연동 지연 컴포넌트 */
     function triggerEasyPaySimulate(appName) {
         const gender = document.getElementById('pay-gender').value;

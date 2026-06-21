@@ -62,7 +62,7 @@
         .right-content .desc { color: var(--text-sub); font-size: 15px; line-height: 1.6; margin-bottom: 25px; }
 
         /* 기부 컴포넌트 공통 구조 */
-        .donation-ui-box { background: var(--primary-light); padding: 22px; border-radius: 16px; margin-bottom: 25px; text-align: left; }
+        .donation-ui-box { background: var(--primary-light); padding: 22px; border-radius: 16px; margin-bottom: 25px; text-align: left; min-height: 110px; }
         
         /* 펀딩 UI */
         .funding-info { display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 8px; font-size: 14px; }
@@ -76,7 +76,7 @@
         .custom-amount-input { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 14px; outline: none; }
 
         /* 카드 포인트 UI */
-        .card-link-box { text-align: center; padding: 15px 0; }
+        .card-link-box { text-align: center; padding: 5px 0; }
         .btn-link { background: white; border: 1px solid var(--primary-color); color: var(--primary-color); display: inline-flex; align-items: center; gap: 5px; width: auto; justify-content: center; padding: 10px 20px; }
 
         /* 액션 버튼 */
@@ -232,26 +232,31 @@
     </div>
 
 <script>
-    // ⚠️ [필수 고쳐쓰기] 본인의 파이어베이스 설정을 붙여넣으세요!
+    // 파이어베이스 설정값 안전 보관
     const firebaseConfig = {
-       apiKey: "AIzaSyDh2Rin87cRXVxf5eTidxnrO93x0M7e4Dc",
-  authDomain: "globalcitizenship-271c4.firebaseapp.com",
-  projectId: "globalcitizenship-271c4",
-  storageBucket: "globalcitizenship-271c4.firebasestorage.app",
-  messagingSenderId: "360209413011",
-  appId: "1:360209413011:web:d4715a7bf7ec2daf056e66"
-};    
+        apiKey: "AIzaSyDh2Rin87cRXVxf5eTidxnrO93x0M7e4Dc",
+        authDomain: "globalcitizenship-271c4.firebaseapp.com",
+        projectId: "globalcitizenship-271c4",
+        storageBucket: "globalcitizenship-271c4.firebasestorage.app",
+        messagingSenderId: "360209413011",
+        appId: "1:360209413011:web:d4715a7bf7ec2daf056e66"
+    };    
 
-    
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-
+    // 초기 변수 설정
     const types = ['정기', '일회성', '크라우드 펀딩', '매칭', '신용카드 포인트'];
     let assignedType = localStorage.getItem('assignedType');
     let visitDocId = localStorage.getItem('visitDocId');
     let hasSurveyed = localStorage.getItem('hasSurveyed') === 'true';
+    let db = null;
 
-    // 💡 데이터 로드 시 위기브 문맥에 어울리도록 텍스트 보정
+    // 파이어베이스 초기화 예외처리 적용
+    try {
+        firebase.initializeApp(firebaseConfig);
+        db = firebase.firestore();
+    } catch (e) {
+        console.error("Firebase 초기화 에러, 하지만 화면은 정상 출력됩니다:", e);
+    }
+
     const typeContent = {
         '정기': { title: '정기 후원하기', desc: '매달 정기적으로 아이들의 성장을 든든하게 지원해 줄 수 있습니다.' },
         '일회성': { title: '일시 후원하기', desc: '원할 때 원하는 만큼 부담 없이 한 번만 따뜻한 마음을 전합니다.' },
@@ -260,13 +265,8 @@
         '신용카드 포인트': { title: '보유 카드 포인트 기부', desc: '숨겨져 있던 카드사 잔여 포인트를 연동하여 가치 있게 기부해 보세요.' }
     };
 
+    // 💡 순서 보장: 화면 진입 시 무조건 버튼 레이아웃부터 완성 후 백엔드 로그 생성
     window.onload = function() {
-        // 🔥 개발 모드 시 테스트하려면 아래 4줄 주석(//) 해제!
-        // localStorage.clear();
-        // assignedType = types[Math.floor(Math.random() * types.length)];
-        // visitDocId = null;
-        // hasSurveyed = false;
-
         if (hasSurveyed) {
             showView('view-thanks');
             return;
@@ -276,8 +276,14 @@
             assignedType = types[Math.floor(Math.random() * types.length)];
             localStorage.setItem('assignedType', assignedType);
         }
+        
+        // 1. 화면 UI 먼저 구성 (가장 중요)
         setupDonationPage();
-        createVisitLog();
+        
+        // 2. 파이어베이스 연동 로그 생성
+        if (db) {
+            createVisitLog();
+        }
     };
 
     function changeTypeDirect(targetType) {
@@ -286,11 +292,13 @@
         setupDonationPage();
         visitDocId = null;
         localStorage.removeItem('visitDocId');
-        createVisitLog();
+        if (db) {
+            createVisitLog();
+        }
     }
 
     function createVisitLog() {
-        if (!visitDocId) {
+        if (!visitDocId && db) {
             db.collection("donations").add({
                 type: assignedType,
                 gender: "미입력",
@@ -303,7 +311,8 @@
             .then((docRef) => {
                 visitDocId = docRef.id;
                 localStorage.setItem('visitDocId', visitDocId);
-            });
+            })
+            .catch(err => console.error("방문 로그 생성 실패:", err));
         }
     }
 
@@ -313,6 +322,7 @@
         document.getElementById('donation-desc').innerText = textInfo.desc;
 
         const container = document.getElementById('donation-ui-container');
+        if(!container) return;
         container.innerHTML = ''; 
 
         if (assignedType === '정기' || assignedType === '일회성') {
@@ -381,16 +391,22 @@
         if (!genderNode || !age) { alert('성별과 나이대를 선택해주세요.'); return; }
         if (!isAgreed) { alert('정보 수집 활용 안내에 체크해 주세요.'); return; }
 
-        db.collection("donations").doc(visitDocId).update({
-            gender: genderNode.value,
-            age: age,
-            hasDonated: true
-        })
-        .then(() => {
+        if (db && visitDocId) {
+            db.collection("donations").doc(visitDocId).update({
+                gender: genderNode.value,
+                age: age,
+                hasDonated: true
+            })
+            .then(() => {
+                closeSignupModal();
+                showView('view-survey');
+            })
+            .catch((error) => console.error("업데이트 에러: ", error));
+        } else {
+            // DB 연결이 지연되거나 실패하더라도 연구 실험 진행을 위해 화면 전환 보장
             closeSignupModal();
             showView('view-survey');
-        })
-        .catch((error) => console.error("업데이트 에러: ", error));
+        }
     }
 
     function handleSurveySubmit() {
@@ -399,15 +415,20 @@
 
         if (!ratingNode || !bestType) { alert('두 문항 모두 성실히 답해 주셔야 제출 가능합니다!'); return; }
 
-        db.collection("donations").doc(visitDocId).update({
-            rating: parseInt(ratingNode.value),
-            bestType: bestType
-        })
-        .then(() => {
+        if (db && visitDocId) {
+            db.collection("donations").doc(visitDocId).update({
+                rating: parseInt(ratingNode.value),
+                bestType: bestType
+            })
+            .then(() => {
+                localStorage.setItem('hasSurveyed', 'true');
+                showView('view-thanks');
+            })
+            .catch((error) => console.error("설문 제출 에러: ", error));
+        } else {
             localStorage.setItem('hasSurveyed', 'true');
             showView('view-thanks');
-        })
-        .catch((error) => console.error("설문 제출 에러: ", error));
+        }
     }
 </script>
 </body>

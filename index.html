@@ -141,10 +141,17 @@ header {
 </head>
 <body>
 
-    <header>
-        <button class="menu-btn" onclick="toggleSidebar()"><span class="material-symbols-outlined">menu</span></button>
-        <div class="logo">Give Story</div>
-    </header>
+<!-- 상단 헤더 가로 네비게이션 -->
+<header>
+    <div class="logo">WeGive</div>
+    <ul class="top-menu">
+        <li onclick="changeTypeDirect('정기')">정기 후원</li>
+        <li onclick="changeTypeDirect('일회성')">일회성 후원</li>
+        <li onclick="changeTypeDirect('크라우드 펀딩')">크라우드 펀딩</li>
+        <li onclick="changeTypeDirect('매칭')">기업 매칭 후원</li>
+        <li onclick="changeTypeDirect('신용카드 포인트')">카드 포인트 기부</li>
+    </ul>
+</header>
 
     <div id="sidebar-overlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
     <div id="sidebar" class="sidebar">

@@ -33,25 +33,29 @@
         .top-menu li { cursor: pointer; font-size: 15px; font-weight: 500; color: var(--text-main); transition: color 0.2s; }
         .top-menu li:hover { color: var(--primary-color); font-weight: 700; }
 
-        /* 메인 컨테이너 - align-items를 flex-start로 변경하여 자식 요소들이 각자 높이를 갖도록 수정 */
+        /* 메인 컨테이너 - 배경 제거, 완전히 두 개의 카드로 분리하기 위해 gap 추가 */
         .main-wrapper {
             max-width: 1100px; width: 90%; margin: 100px auto 40px auto;
-            background: white; border-radius: 24px; overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.06); display: flex; align-items: flex-start;
+            display: flex; align-items: flex-start; gap: 30px;
         }
         
-        /* 왼쪽 사진 배너 - 고정 높이(height)를 주어 우측 창 길이에 영향을 받지 않도록 분리 */
+        /* 왼쪽 사진 배너 - 개별 카드로 독립 */
         .left-banner {
             flex: 1.1; height: 560px;
             background: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.4)), url('https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=1000&auto=format&fit=crop');
             background-size: cover; background-position: center;
             display: flex; flex-direction: column; justify-content: flex-end; padding: 40px; color: white;
+            border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); overflow: hidden;
         }
         .left-banner .banner-tag { background: rgba(255,255,255,0.25); backdrop-filter: blur(4px); padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; width: fit-content; margin-bottom: 12px; text-transform: uppercase; }
         .left-banner h1 { font-size: 32px; margin-bottom: 10px; font-weight: 700; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
         .left-banner p { font-size: 16px; margin: 0; line-height: 1.5; color: #f8f9fa; text-shadow: 0 1px 3px rgba(0,0,0,0.5); }
 
-        .right-content { flex: 0.9; padding: 40px; display: flex; flex-direction: column; justify-content: center; position: relative; max-width: 100%; }
+        /* 오른쪽 기부창 - 개별 카드로 독립 */
+        .right-content { 
+            flex: 0.9; padding: 40px; display: flex; flex-direction: column; justify-content: center; position: relative; max-width: 100%;
+            background: white; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        }
         .right-content h2 { font-size: 24px; margin-top: 0; margin-bottom: 12px; }
         .right-content .desc { color: var(--text-sub); font-size: 15px; line-height: 1.6; margin-bottom: 25px; }
 
@@ -67,7 +71,7 @@
         .custom-amount-input { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 14px; outline: none; }
 
         .card-link-box { text-align: center; padding: 5px 0; }
-        .btn-link { background: white; border: 1px solid var(--primary-color); color: var(--primary-color); display: inline-flex; align-items: center; gap: 5px; width: auto; justify-content: center; padding: 10px 20px; cursor: pointer; }
+        .btn-link { background: white; border: 1px solid var(--primary-color); color: var(--primary-color); display: inline-flex; align-items: center; gap: 5px; width: auto; justify-content: center; padding: 10px 20px; cursor: pointer; border-radius: 8px; }
 
         .btn-submit { background-color: #e63946; color: white; border: none; font-size: 16px; font-weight: 700; padding: 15px; border-radius: 12px; cursor: pointer; width: 100%; transition: background 0.2s; margin: 0; }
         .btn-submit:hover { background-color: #cb2d3a; }
@@ -131,9 +135,9 @@
             .logo { margin: 15px 0 10px 0; }
             .top-menu { flex-wrap: wrap; justify-content: center; gap: 10px; }
             .top-menu li { font-size: 13px; }
-            .main-wrapper { flex-direction: column; min-height: auto; margin-top: 20px; }
-            .left-banner { min-height: 200px; padding: 20px; height: auto; }
-            .right-content { padding: 25px; }
+            .main-wrapper { flex-direction: column; min-height: auto; margin-top: 20px; gap: 20px; }
+            .left-banner { min-height: 200px; padding: 20px; height: auto; width: 100%; }
+            .right-content { padding: 25px; width: 100%; }
             .campaign-meta { grid-template-columns: max-content auto; gap: 8px 15px; }
             .budget-header, .budget-row { flex-direction: column; gap: 5px; }
             .budget-row .category, .budget-header .col-title { font-size: 12px; color: var(--primary-color); }
@@ -314,7 +318,7 @@
     let hasSurveyed = localStorage.getItem('hasSurveyed') === 'true';
     let hasCheckedUsage = false; 
     let db = null;
-    let userCardPoints = 0; // 카드 포인트 저장용 변수 추가
+    let userCardPoints = 0; 
 
     try {
         firebase.initializeApp(firebaseConfig);
@@ -438,7 +442,6 @@
             `;
         } 
         else if (assignedType === '신용카드 포인트') {
-            // 포인트 조회 UI 업데이트 적용
             container.innerHTML = `
                 <div class="card-link-box" id="point-query-box">
                     <p id="point-query-desc" style="margin-top:0; font-size:13px;">간편 인증으로 잠자고 있는 카드 포인트를 한 번에 조회합니다.</p>
@@ -452,7 +455,8 @@
                         조회된 기부 가능 포인트: <span id="display-points" style="color: var(--primary-color);">0</span> P
                     </p>
                     <div style="margin-top: 10px;">
-                        <input type="number" id="point-input" class="custom-amount-input" placeholder="후원할 포인트를 입력하세요 (P)" style="margin-bottom: 10px;">
+                        <!-- 입력 제한 함수 validatePointInput 추가 -->
+                        <input type="number" id="point-input" class="custom-amount-input" placeholder="후원할 포인트를 입력하세요 (P)" style="margin-bottom: 10px;" oninput="validatePointInput(this)">
                         <label style="font-size: 13px; display: flex; align-items: center; gap: 8px; cursor: pointer; color: var(--text-main);">
                             <input type="checkbox" id="check-all-points" onchange="toggleAllPoints()" style="cursor: pointer; width: 16px; height: 16px;"> 전액 기부하기
                         </label>
@@ -464,20 +468,24 @@
 
     // 신용카드 포인트 랜덤 조회 기능
     function checkCardPoints() {
-        // 2000원 ~ 30000원 사이 100단위 랜덤 난수 생성
         userCardPoints = Math.floor(Math.random() * 281) * 100 + 2000;
-        
-        // 생성된 포인트를 화면에 표시
         document.getElementById('display-points').innerText = userCardPoints.toLocaleString();
-        
-        // 숨겨진 입력창 및 전액 기부 영역 표시
         document.getElementById('point-result-box').classList.remove('hidden');
-        
-        // 조회 버튼 숨기기 & 설명 텍스트 변경
         document.getElementById('btn-check-points').style.display = 'none';
         document.getElementById('point-query-desc').innerText = "✅ 카드 포인트 조회가 완료되었습니다.";
         document.getElementById('point-query-desc').style.color = "var(--green-color)";
         document.getElementById('point-query-desc').style.fontWeight = "bold";
+    }
+
+    // 입력된 금액이 보유 포인트를 초과하지 못하도록 제한하는 함수
+    function validatePointInput(inputElem) {
+        let enteredValue = parseInt(inputElem.value);
+        if (enteredValue > userCardPoints) {
+            alert('보유하신 포인트(' + userCardPoints.toLocaleString() + ' P)를 초과하여 기부할 수 없습니다.');
+            inputElem.value = userCardPoints;
+        } else if (enteredValue < 0) {
+            inputElem.value = 0;
+        }
     }
 
     // 전액 기부 체크박스 토글 기능

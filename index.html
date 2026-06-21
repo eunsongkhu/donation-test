@@ -170,7 +170,12 @@
             .bug-report-btn { justify-content: flex-start; gap: 8px; }
 
             .main-wrapper { flex-direction: column; min-height: auto; margin-top: 80px; gap: 20px; width: 95%; }
-            .left-banner { display: none; } /* 결제 진입 전 메인 화면에서도 모바일 크기 맞춤 지원 */
+            .left-banner { 
+    display: flex; /* 숨김 해제 */
+    height: 250px; /* 모바일 화면에 맞게 이미지 높이를 알맞게 줄임 */
+    border-radius: 16px; /* 모바일에 어울리게 둥글기 조절 */
+    padding: 25px; /* 내부 여백 조절 */
+}
             .right-content { padding: 20px; width: 100%; }
 
             /* 금액 칩 가독성 확보 */

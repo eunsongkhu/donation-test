@@ -288,9 +288,7 @@
     <!-- 💳 [동적 삽입용] 결제 페이지 템플릿 (후원하기 클릭 시 전체 영역 대체 표출용) -->
     <div id="payment-page-template" class="hidden">
         <div class="pay-page-container">
-            <div class="pay-notice-header">
-                ⚠️ 본 페이지는 연구용 모의 창입니다. 실제 결제는 이루어지지 않으며, 진짜 개인정보 및 금융정보는 입력하지 마세요!
-            </div>
+        
             
             <div class="pay-section-title">1. 후원자 정보입력 및 약관동의</div>
             
@@ -303,7 +301,7 @@
                         <option value="여성">여성</option>
                     </select>
                 </div>
-                <button class="btn-auto-fill" onclick="autoFillField('gender')">자동 완성</button>
+
             </div>
 
             <div class="form-row">
@@ -318,7 +316,7 @@
                         <option value="50대 이상">50대 이상</option>
                     </select>
                 </div>
-                <button class="btn-auto-fill" onclick="autoFillField('age')">자동 완성</button>
+
             </div>
 
             <div class="form-row">
@@ -328,7 +326,11 @@
                         <input type="checkbox" id="pay-agree" style="width:16px; height:16px;"> 수집된 성별, 연령 정보는 연구 목적으로만 안전하게 활용됨에 동의합니다. (필수)
                     </label>
                 </div>
-                <button class="btn-auto-fill" onclick="autoFillField('agree')">자동 완성</button>
+
+            </div>
+
+            <div class="pay-notice-header">
+                ⚠️ 본 페이지는 모의 페이지입니다. 실제 결제는 이루어지지 않으며, 해당 주의문구 아래로 진짜 개인정보 및 금융정보는 입력하지 마세요!
             </div>
 
             <div class="pay-section-title">2. 결제 정보 입력</div>
